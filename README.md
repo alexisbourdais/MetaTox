@@ -31,16 +31,16 @@ Create a **Tools** folder and place the following files in it:
 - A **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below) and rename the Biotranformer3.0.jar
 - A **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
 
-Set **main.sh** to the root of this folder
+Set **Main.sh** to the root of this folder
 
 Create a **conda environment** `conda env create --name metatrans --file environment_metatrans.yml`
 
 
 ## Instruction
 
-Make the script main.sh executable `chmod +x main.sh`
+Make the script Main.sh executable `chmod +x main.sh`
 
-Run the main.sh `./main.sh`
+Run the Main.sh `./main.sh`
 
 ## Documentation
 
