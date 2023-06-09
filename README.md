@@ -18,7 +18,7 @@ Various packages are required :
 
 - **bc command** `apt install bc`
 - **Java** `apt install default-jre`
-- **Docker**
+- **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda**
 
 Create a **Tools** folder and place the following files in it: 
@@ -38,9 +38,9 @@ Create a **conda environment** `conda env create --name metatrans --file environ
 
 ## Instruction
 
-- **Biotransformation.csv**
-- **Molecule.csv**
-- **SmilesMolecule.txt**
+Make the script main.sh executable `chmod +x main.sh`
+
+Run the main.sh `./main.sh`
 
 ## Documentation
 
