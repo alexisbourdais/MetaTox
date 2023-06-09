@@ -19,7 +19,7 @@ Various packages are required :
 - **bc command** `apt install bc`
 - **Java** `apt install default-jre`
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
-- **Conda**
+- **Conda** (https://github.com/conda/conda)
 
 Create a **Tools** folder and place the following files in it: 
 - **ProgressTool.sh**
