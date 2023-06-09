@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project consists of 5 modules to facilitate the analysis of molecular networking mass spectrometry data:
+This project consists of 5 modules to facilitate the analysis of mass spectrometry data by molecular networking :
 - Metabolites: allows the annotation of molecules in a .clustersummary file from the GNPS site from a reference file.
 - Biotransformation: annotates the links in a .selfloop file from the GNPS site with the biotransformations corresponding to the mass difference between the molecules.
 - InSilico: enables in silico prediction of a list of molecules whose SMILES code is provided by 3 software packages (BioTransformer3, SyGMa, MetaTrans).
