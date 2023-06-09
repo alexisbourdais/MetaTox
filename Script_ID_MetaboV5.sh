@@ -41,7 +41,7 @@ Usage: $0 [-h] [-i input_file] [-m float] [-t float] [-r ref_file] [-p string]
 Exemple:
 
 Metabolites,Masse,RT
-Eutylone,236.128,4.90
+MoleculeName,0.000,0.00
 
 """
 }
