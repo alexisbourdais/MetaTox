@@ -1,4 +1,4 @@
-# MolecularNetworking
+# Molecular networking applied to toxicology
 
 ## Overview
 
