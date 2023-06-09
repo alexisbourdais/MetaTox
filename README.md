@@ -14,7 +14,7 @@ This project consists of 5 modules to facilitate the analysis of mass spectromet
 Various packages are required :
 - **Zenity** `apt install zenity`
 
--> As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, the various scripts can be used separately.
+=> As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, the various scripts can be used separately.
 
 - **bc command** `apt install bc`
 - **Java** `apt install default-jre`
