@@ -13,13 +13,14 @@ This project consists of 5 modules to facilitate the analysis of mass spectromet
 
 Various packages are required :
 - **Zenity** `apt install zenity`
+-> As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, the various scripts can be used separately.
+
 - **bc command** `apt install bc`
 - **Java** `apt install default-jre`
 - **Docker**
 - **Conda**
 
 Create a **Tools** folder and place the following files in it: 
-- **environment_metatrans.yml**
 - **ProgressTool.sh**
 - **pwiz.sh**
 - **Script_Edges_MetGem.sh**
@@ -31,7 +32,7 @@ Create a **Tools** folder and place the following files in it:
 
 Set **main.sh** to the root of this folder
 
-`conda env create --name metatrans --file environment_metatrans.yml`
+Create a **conda environment** `conda env create --name metatrans --file environment_metatrans.yml`
 
 
 ## Instruction
