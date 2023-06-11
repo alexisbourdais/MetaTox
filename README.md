@@ -38,9 +38,9 @@ Create a **conda environment** `conda env create --name metatrans --file environ
 
 ## Instruction
 
-Make the script Main.sh executable `chmod +x main.sh`
+Make the script Main.sh executable `chmod +x Main.sh`
 
-Run the Main.sh `./main.sh`
+Run the Main.sh `./Main.sh`
 
 ## Documentation
 
