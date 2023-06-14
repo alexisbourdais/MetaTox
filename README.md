@@ -57,6 +57,8 @@ Cytoscape : https://cytoscape.org/
 
 MetGem : https://github.com/metgem/metgem
 
+SdftoSmil & SmitoStr : https://github.com/MunibaFaiza/cheminformatics/tree/main
+
 ## References
 
 Wang, M. et al. Sharing and community curation of mass spectrometry data with Global Natural Products Social Molecular Networking. Nat Biotechnol 34, 828–837 (2016).
