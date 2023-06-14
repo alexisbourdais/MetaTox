@@ -43,7 +43,7 @@ Make the script Main.sh executable `chmod +x Main.sh`
 
 Run the Main.sh `./Main.sh`
 
-## Documentation
+## Documentation & Acknowledgements
 
 GNPS : https://gnps.ucsd.edu/ProteoSAFe/static/gnps-splash.jsp
 
@@ -59,7 +59,7 @@ Cytoscape : https://cytoscape.org/
 
 MetGem : https://github.com/metgem/metgem
 
-SdftoSmil & SmitoStr : https://github.com/MunibaFaiza/cheminformatics/tree/main
+SdftoSmi & SmitoStr scripts : https://github.com/MunibaFaiza/cheminformatics/tree/main
 
 ## References
 
