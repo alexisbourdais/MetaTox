@@ -30,8 +30,8 @@ Create a **Tools** folder and place the following files in it:
 - **Script_PredictionMetabo.sh**
 - **environment_metatrans.yml**
 - **environment_rdkit.yml**
-- A **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
-- A **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
+- **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
+- **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
 
 Set **Main.sh** to the root of this folder
 
