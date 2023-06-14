@@ -142,16 +142,44 @@ Type = ${type}
 ### Work Directory ###
 ######################
 
-ListeSmileMolecule="${input}"
-
 DirOutput="${PWD}/Results_Prediction/"
 mkdir $DirOutput
 DirOutputFig=${DirOutput}MetaTrans_Figures
 mkdir $DirOutputFig
+DirFigSygma=${DirOutput}Sygma_Figures
+mkdir $DirFigSygma
 
 DirBiotrans="${PWD}/Tools/Biotransformer3.0/"
 DirMetatrans="${PWD}/Tools/MetaTrans-master/"
+Script_SdftoSmi="${PWD}/Tools/sdftosmi.py"
+Script_SmitoStr="${PWD}/Tools/smitostr.py"
 
+####################
+### Smiles Input ###
+####################
+
+
+REQUIRED_PKG="dos2unix"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+  sudo apt-get --yes install $REQUIRED_PKG
+fi
+
+
+file $input | grep CRLF && sudo dos2unix $input
+
+declare -a tab_molecule
+declare -a tab_smiles
+
+while read a
+do
+    Molecule=$(echo $a | cut -d\, -f1)
+    Smiles=$(echo $a | cut -d\, -f2)
+    tab_smiles[${#tab_smiles[@]}]=${Smiles}
+    tab_molecule[${#tab_molecule[@]}]=${Molecule}
+done < $input
 
 #########################
 ### Environment conda ###
@@ -161,7 +189,13 @@ eval "$(conda shell.bash hook)"
 if conda info --envs | grep -q metatrans; then 
 echo "Conda environment "metatrans" already exists"
 else 
-conda env create --name metatrans --file environment_metatrans.yml
+conda env create --name metatrans --file ./Tools/environment_metatrans.yml
+fi
+
+if conda info --envs | grep -q my-rdkit-env; then 
+echo "Conda environment "my-rdkit-env" already exists"
+else 
+conda env create --name my-rdkit-env --file ./Tools/rdkit_environment.yml
 fi
 
 
@@ -169,20 +203,30 @@ fi
 #### Sygma ###
 ##############
 
+sudo service docker start
+conda activate my-rdkit-env
+
+for indice in ${!tab_molecule[@]}
+do
+    echo "
+    #####   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Sygma   #####
+    "
+    sudo docker run 3dechem/sygma ${tab_smiles[${indice}]} >> "${DirOutput}Prediction_sygma_${tab_molecule[${indice}]}.sdf"
+
+    ###Conversion des sdf en smiles
+    python3 ${Script_SdftoSmi} ${DirOutput}Prediction_sygma_${tab_molecule[${indice}]}.sdf
+    mv ${PWD}/smiles.txt ${DirOutput}Prediction_sygma_${tab_molecule[${indice}]}_smiles.txt
+    ###
+    python3 $Script_SmitoStr -i ${DirOutput}Prediction_sygma_${tab_molecule[${indice}]}_smiles.txt
+    mkdir ${DirFigSygma}/${tab_molecule[${indice}]}
+    mv Molecule*.jpeg ${DirFigSygma}/${tab_molecule[${indice}]}
+done
+
+conda deactivate
+
 #--phase1 Number of phase 1 cycles (default: 1)
 #--phase2 Number of phase 2 cycles (default: 1)
 #-o, --outputtype Molecule output type (default: sdf)
-
-while read a
-do
-Molecule=$(echo $a | cut -d',' -f1)
-Smile=$(echo $a | cut -d',' -f2)
-echo "
-#####		Process of ${Molecule} : ${Smile} by Sygma		#####
-"
-sudo docker run 3dechem/sygma ${Smile} >> "${DirOutput}Prediction_sygma_${Molecule}.sdf"
-done < $ListeSmileMolecule
-
 
 ########################
 ### Bio-transformers ###
@@ -190,21 +234,18 @@ done < $ListeSmileMolecule
 
 cd ${DirBiotrans}
 
-while read a
+for indice in ${!tab_molecule[@]}
 do
-Molecule=$(echo $a | cut -d',' -f1)
-Smile=$(echo $a | cut -d',' -f2)
-echo "
-#####		Process of ${Molecule} : ${Smile} by Biotransformer3	#####
-"
-java -jar BioTransformer3.0.jar \
--b ${type} \
--k pred \
--cm 3 \
--ismi "${Smile}" \
--ocsv "${DirOutput}Prediction_biotransformers_${Molecule}.csv"
-done < $ListeSmileMolecule
-
+    echo "
+    #####   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformers3   #####
+    "
+    java -jar BioTransformer3.0.jar \
+    -b ${type} \
+    -k pred \
+    -cm 3 \
+    -ismi "${tab_smiles[${indice}]}" \
+    -ocsv "${DirOutput}Prediction_biotransformers_${tab_molecule[${indice}]}.csv"
+done
 
 #################
 ### MetaTrans ###
@@ -223,7 +264,7 @@ mkdir $STORE
 echo "
 #####		Process of MetaTrans step 1 : Prepara data		#####
 "
-python prepare_input_file.py -input_file ${ListeSmileMolecule} -output_file ${outfile}
+python prepare_input_file.py -input_file ${input} -output_file ${outfile}
 
 ### Step 2 : Translate
 echo "
@@ -242,10 +283,12 @@ echo "
 #####		Process of MetaTrans step 2 : Get prediction		#####
 "
 python process_predictions.py \
--input_file ${ListeSmileMolecule} \
+-input_file ${input} \
 -output_file ${results} \
 -beam_size ${BEAM} \
 -visualise_molecules True
+
+conda deactivate
 
 ### Déplacement des fichiers de résultats et suppression des fichiers intermédiaires
 rm ${outfile}
@@ -253,8 +296,31 @@ rm -r ${STORE}
 mv ${results} ${DirOutput}
 mv ${images} ${DirOutputFig}
 
+
+### Retraitement fichier de résultats MetaTrans ###
+cd ${DirOutput}
+pat='^Molecule'
+while read a
+do
+    if [[ $a =~ $pat ]]; then
+        :
+
+    else
+        MoleculeID=$(echo $a | cut -d\, -f1)
+        SmileParent=$(echo $a | cut -d\, -f2)
+        SmileMetabo=$(echo $a | cut -d\, -f3)
+        read -ra tab_metabo <<< "$SmileMetabo"
+        n_metabo=0
+        for i in ${tab_metabo[@]}; do
+            ((n_metabo+=1))
+            echo "Metabolite${n_metabo},${i}" >> "${MoleculeID}_Metatrans.txt"
+        done
+    fi
+done < "Prediction_MetaTrans.csv"
+
+
 echo "
-Enregistrement des résultats dans le fichier ${DirOutput}
+Enregistrement des résultats dans le dossier ${DirOutput}
 
 Fin de l'excecution du programme !
 "
