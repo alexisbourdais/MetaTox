@@ -43,7 +43,7 @@ Make the script Main.sh executable `chmod +x Main.sh`
 
 Run the Main.sh `./Main.sh`
 
-## Documentation & Acknowledgements
+## Sources & Documentations
 
 GNPS : https://gnps.ucsd.edu/ProteoSAFe/static/gnps-splash.jsp
 
