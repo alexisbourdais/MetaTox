@@ -35,6 +35,8 @@ Make the script Main.sh executable `chmod +x Main.sh`
 
 Run the Main.sh `./Main.sh`
 
+To use the ***in silico*** mode, create a text file with each line = namemolecule,smilecode
+
 ## Sources & Documentations
 
 GNPS : https://gnps.ucsd.edu/ProteoSAFe/static/gnps-splash.jsp
