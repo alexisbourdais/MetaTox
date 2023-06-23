@@ -23,17 +23,7 @@ Various packages are required :
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda)
 
-Create a **Tools** folder and place the following files in it: 
-- **ProgressTool.sh**
-- **pwiz.sh**
-- **Script_Edges_MetGem.sh**
-- **Script_ID_Edges.sh**
-- **Script_ID_Metabo.sh**
-- **Script_PredictionMetabo.sh**
-- **environment_metatrans.yml**
-- **environment_rdkit.yml**
-- **sdftosmi.py**
-- **smitostr.py**
+Unzip the **Tools** folder and place the following folder in it: 
 - **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
 - **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
 
