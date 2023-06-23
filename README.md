@@ -11,7 +11,7 @@ This project consists of 5 modules to facilitate the analysis of mass spectromet
 
 ## Installation
 
-Various packages are required :
+### Various packages are required :
 - **Zenity** `apt install zenity`
 
 => As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, the various scripts can be used separately.
@@ -23,11 +23,11 @@ Various packages are required :
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda)
 
-Unzip the **Tools** folder and place the following folder in it: 
+### Unzip the **Tools** folder and place the following folder in it: 
 - **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
 - **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
 
-Set **Main.sh** to the root of this folder
+### Set **Main.sh** to the root of this folder
 
 ## Instruction
 
