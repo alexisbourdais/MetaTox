@@ -17,6 +17,8 @@ Various packages are required :
 => As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, the various scripts can be used separately.
 
 - **bc command** `apt install bc`
+- **gawk** `apt install gawk`
+- **csvkit** `apt install csvkit`
 - **Java** `apt install default-jre`
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda)
