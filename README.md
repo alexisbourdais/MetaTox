@@ -18,7 +18,6 @@ This project consists of 5 modules to facilitate the analysis of mass spectromet
 
 - **bc command** `apt install bc`
 - **gawk** `apt install gawk`
-- **csvkit** `apt install csvkit`
 - **Java** `apt install default-jre`
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda)
