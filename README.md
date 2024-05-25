@@ -24,11 +24,11 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda)
 
-### Unzip the **Tools** folder and place the following folder in it: 
+### Download the **Tools** folder and place the following folder in it: 
 - **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
 - **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
 
-### Set **Main.sh** to the root of this folder
+### Set **Main.sh** to the root of Tools folder
 
 ## Instruction
 
