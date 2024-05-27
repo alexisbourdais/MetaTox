@@ -11,12 +11,12 @@ This project consists of 5 modules to facilitate the analysis of mass spectromet
 
 Linux and Windows (WSL) compatible. Not tested on Mac
 
-## Installation
+## Instruction
 
-### Various packages are required :
+### Required packages:
 - **Zenity** `apt install zenity`
 
-=> As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, the various scripts can be used separately. The program runs under Windows via WSL.
+=> As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, modules can be used separately.
 
 - **bc command** `apt install bc`
 - **gawk** `apt install gawk`
@@ -24,17 +24,13 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda)
 
-### Download the **Tools** folder and place the following folder in it: 
+### Download **Tools** folder and place the following folder in it: 
 - **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
 - **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
 
-### Set **Main.sh** to the root of Tools folder
+### Set **Main.sh** to the root of Tools folder and make it executable `chmod +x Main.sh`
 
-## Instruction
-
-Make the script Main.sh executable `chmod +x Main.sh`
-
-Run the Main.sh `./Main.sh`
+### Run the **Main.sh** `./Main.sh`
 
 To use the ***in silico*** mode, create a text file with each line = namemolecule,smilecode
 
