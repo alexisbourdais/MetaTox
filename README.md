@@ -22,7 +22,8 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 - **gawk** `apt install gawk`
 - **Java** `apt install default-jre`
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
-- **Conda** (https://github.com/conda/conda)
+- **Conda** (https://github.com/conda/conda).
+- May be necessary for metatrans conda environment installation : `conda config --set channel_priority flexible`
 
 ### Download **Tools** folder and place the following folder in it: 
 - **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
