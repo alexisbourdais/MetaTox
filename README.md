@@ -28,7 +28,7 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 - **MetaTrans** `git clone https://github.com/KavrakiLab/MetaTrans` then place it in **Tools/**.
 - To finish, download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in et MetaTrans/models/
 
-### Run the **Main.sh** `./Main.sh`
+### Run the **Main.sh** `chmod +x Main.sh` and `./Main.sh`
 
 To use the ***in silico*** mode, create a text file with each line = namemolecule,smilecode
 
