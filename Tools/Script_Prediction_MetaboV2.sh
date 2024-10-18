@@ -150,8 +150,8 @@ mkdir $DirFigSygma
 DirFigBioTrans=${DirOutput}BioTrans_Figures
 mkdir $DirFigBioTrans
 
-DirBiotrans="${PWD}/Tools/Biotransformer3.0/"
-DirMetatrans="${PWD}/Tools/MetaTrans-master/"
+DirBiotrans="${PWD}/Tools/biotransformer3.0jar/"
+DirMetatrans="${PWD}/Tools/MetaTrans/"
 Script_SdftoSmi="${PWD}/Tools/sdftosmi.py"
 Script_SmitoStr="${PWD}/Tools/smitostr.py"
 Script_SmitoStr2="${PWD}/Tools/smitostr_2.py"
@@ -298,7 +298,7 @@ do
     #####   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformers3   #####
     "
 
-    java -jar BioTransformer3.0.jar \
+    java -jar BioTransformer3.0_20230525.jar \
     -b ${type} \
     -k pred \
     -cm 3 \
