@@ -14,22 +14,19 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 ## Instruction
 
 ### Required packages:
-- **Zenity** `apt install zenity`
-
-=> As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, modules can be used separately.
-
-- **bc command** `apt install bc`
-- **gawk** `apt install gawk`
-- **Java** `apt install default-jre`
+- **Zenity** `sudo apt install zenity` (As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, modules can be used separately)
+- **bc command** `sudo apt install bc`
+- **gawk** `sudo apt install gawk`
+- **Java** `sudo apt install default-jre`
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda).
-- May be necessary for metatrans conda environment installation : `conda config --set channel_priority flexible`
+- Necessary for metatrans conda environment installation : `conda config --set channel_priority flexible`
 
-### Download **Tools** folder and place the following folder in it: 
-- **Biotranformer3.0** folder containing the various files of Biotransformer3 (see link below). Rename the **Biotranformer3.0.jar**.
-- **MetaTrans-master** folder containing the various files of MetaTrans (see link below)
-
-### Set **Main.sh** to the root of Tools folder and make it executable `chmod +x Main.sh`
+### Download: 
+- **This project** `git clone https://github.com/alexisbourdais/MolecularNetworking`
+- **Biotranformer3.0** `git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git` then place it in **Tools/**
+- **MetaTrans-master** `git clone https://github.com/KavrakiLab/MetaTrans` then place it in **Tools/**.
+- To finish, download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in et MetaTrans/models/
 
 ### Run the **Main.sh** `./Main.sh`
 
