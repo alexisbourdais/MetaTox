@@ -11,7 +11,7 @@ This project consists of 5 modules to facilitate the analysis of mass spectromet
 
 Linux and Windows (WSL) compatible. Not tested on Mac
 
-## Instruction
+## Quick start
 
 ### Required packages:
 - **Zenity** `sudo apt install zenity` (As this project was designed for non-bioinformaticians, a graphical interface via zenity was included. However, modules can be used separately)
@@ -27,9 +27,12 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 - `cd Tools/`
 - `git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git` **Biotranformer3.0** 
 - `git clone https://github.com/KavrakiLab/MetaTrans` **MetaTrans**
-- To finish, download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in et MetaTrans/models/
+- download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/**
 
-### Run the **Main.sh** `chmod +x Main.sh` and `./Main.sh`
+### Run
+- `cd ..`
+- `chmod +x Main.sh`
+- `./Main.sh`
 
 To use the ***in silico*** mode, create a text file with each line = namemolecule,smilecode
 
