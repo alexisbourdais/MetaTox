@@ -25,8 +25,8 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 ### Download: 
 - `git clone https://github.com/alexisbourdais/MolecularNetworking`
 - `cd Tools/`
-- `git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git` **Biotranformer3.0** 
-- `git clone https://github.com/KavrakiLab/MetaTrans` **MetaTrans**
+-  **Biotranformer3.0** `git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git` 
+- **MetaTrans** `git clone https://github.com/KavrakiLab/MetaTrans` 
 - download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/**
 
 ### Run
