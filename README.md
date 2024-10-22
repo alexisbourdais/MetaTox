@@ -4,7 +4,7 @@
 
 *In silico* prediction of a list of molecules whose SMILES code is provided by 4 software packages : **BioTransformer3**, **SyGMa**, **MetaTrans** and **Meta-Predictor**.
 
-Biotransformer and Sygma are used via a singularity, Meta-Trans & Meta-Predictor need to clone their github.
+Biotransformer and Sygma are used via singularity, Meta-Trans & Meta-Predictor need to clone their github.
 
 Linux and Windows (WSL) compatible. Not tested on Mac.
 
