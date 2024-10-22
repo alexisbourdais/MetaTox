@@ -18,6 +18,7 @@ Linux and Windows (WSL) compatible. Not tested on Mac
 - **bc command** `sudo apt install bc`
 - **gawk** `sudo apt install gawk`
 - **Java** `sudo apt install default-jre`
+- **dos2unix** `sudo apt install dos2unix`
 - **Docker** (https://docs.docker.com/desktop/install/linux-install/)
 - **Conda** (https://github.com/conda/conda).
 - Necessary for metatrans conda environment installation : `conda config --set channel_priority flexible`
