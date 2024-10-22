@@ -32,7 +32,6 @@ Eutylone,CCC(C(=O)C1=CC2=C(C=C1)OCO2)NCC
 
 - Singularity pour l'outil Sygma (https://docs.docker.com/)
 - Conda pour l'outil MetaTrans (https://docs.conda.io/projects/conda/en/stable/user-guide/index.html)
-- Java pour l'outil BioTransformers3 (https://www.java.com/fr/)
 
 """
 }
@@ -94,8 +93,6 @@ fi
 ### Zenity ###
 ##############
 
-#Add choix outil : all
-
 zenity --info --text "
 In silico prediction by :
 - Bio-transformer3
@@ -137,11 +134,25 @@ for indice in ${!tab_molecule[@]}
 do
     sygma_function --script $DirScripts --molecule ${tab_molecule[${indice}]} --smile ${tab_smiles[${indice}]} --outdir ${DirOutput}
     biotransformer_function --script $DirScripts --molecule ${tab_molecule[${indice}]} --smile ${tab_smiles[${indice}]} --outdir ${DirOutput} --biodir $DirBiotrans --type $type
-    metatrans_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetatrans} --min $min --max $max --beam $beam
-    metapredictor_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetapred}
 done
 
+metatrans_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetatrans} --min $min --max $max --beam $beam
 
-        ### TO DO ###
-### Compile all results
-### Option sygma ...
+if conda info --envs | grep -q metapredictor; then 
+    metapredictor_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetapred}
+    echo "
+    Enregistrement des résultats dans le dossier ${DirOutput}
+
+    Fin de l'excecution du programme !
+    "
+else 
+    echo "Conda environment "metapredictor" does not exists !
+    You need to install it manually (https://github.com/zhukeyun/Meta-Predictor)
+
+    Enregistrement des résultats dans le dossier ${DirOutput}
+
+    Fin de l'excecution du programme !
+    "
+
+    exit 0
+fi
