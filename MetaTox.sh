@@ -24,7 +24,7 @@ Usage: ./$0
 
 Exemple:
 
-Eutylone,CCC(C(=O)C1=CC2=C(C=C1)OCO2)NCC
+Nicotine,CN1CCC[C@H]1c2cccnc2
 
 ####################
 ### Requirements ###

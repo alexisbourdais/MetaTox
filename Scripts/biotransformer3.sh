@@ -88,12 +88,7 @@ do
     -ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
     
     #Download version
-    #java -jar BioTransformer3.0_20230525.jar \
-    #-b ${type} \
-    #-k pred \
-    #-cm 3 \
-    #-ismi "${tab_smiles[${indice}]}" \
-    #-ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
+    #java -jar BioTransformer3.0_20230525.jar -b ${type} -k pred -cm 3 -ismi "${tab_smiles[${indice}]}" -ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
 
     #Changement de format du csv
     csvformat -D ";" "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"

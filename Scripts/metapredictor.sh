@@ -98,6 +98,8 @@ do
     fi
 done < "Prediction_metapred.csv"
 
+rm Prediction_metapred.csv
+
 conda activate my-rdkit-env
 
 for indice in ${!tab_molecule[@]}
@@ -126,7 +128,7 @@ do
         echo $line
     done < ${tab_molecule[${indice}]}_metapredVF.txt >> ${tab_molecule[${indice}]}_metapred.csv
 
-    rm ${tab_molecule[${indice}]}_metapredV1.txt ${tab_molecule[${indice}]}_metapred_BrutFormula.txt ${tab_molecule[${indice}]}_metapred_Mass.txt ${tab_molecule[${indice}]}_metapredVF.txt Prediction_metapred.csv
+    rm ${tab_molecule[${indice}]}_metapredV1.txt ${tab_molecule[${indice}]}_metapred_BrutFormula.txt ${tab_molecule[${indice}]}_metapred_Mass.txt ${tab_molecule[${indice}]}_metapredVF.txt
 done
 
 conda deactivate
