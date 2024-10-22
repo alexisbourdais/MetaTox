@@ -16,7 +16,9 @@ Linux and Windows (WSL) compatible. Not tested on Mac.
 - **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 - Necessary for metatrans conda env install : `conda config --set channel_priority flexible`
 - See https://github.com/zhukeyun/Meta-Predictor to create a conda environment
-- As this project was designed for non-bioinformaticians, a graphical interface via zenity was included `sudo apt install zenity bc gawk dos2unix`
+- As this project was designed for non-bioinformaticians, a graphical interface via zenity was included:
+
+  `sudo apt install zenity bc gawk dos2unix`
 
 ### Download: 
 
