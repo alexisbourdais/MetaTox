@@ -79,8 +79,6 @@ mkdir ${DirFigSygma}/${molecule}
 cd ${DirFigSygma}/${molecule}
 python3 $Script_SmitoStr -i ${DirOutput}Prediction_sygma_${molecule}_smiles.txt
 
-#mv Molecule*.jpeg ${DirFigSygma}/${molecule}
-
 #Ajout des scores & pathway du fichier sdf dans le fichier txt
 while read line
 do
@@ -131,8 +129,4 @@ do
     echo $line | sed "s/;//g"
 done < ${DirOutput}${molecule}_SygmaVF.txt >> ${DirOutput}${molecule}_Sygma.csv
 rm ${DirOutput}${molecule}_SygmaVF.txt
-
 }
-
-# To use as script : ./sygma.sh --molecule --smile --outdir
-#sygma_function $@

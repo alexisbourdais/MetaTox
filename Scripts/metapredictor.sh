@@ -126,7 +126,7 @@ do
         echo $line
     done < ${tab_molecule[${indice}]}_metapredVF.txt >> ${tab_molecule[${indice}]}_metapred.csv
 
-    rm ${tab_molecule[${indice}]}_metapredV1.txt ${tab_molecule[${indice}]}_metapred_BrutFormula.txt ${tab_molecule[${indice}]}_metapred_Mass.txt ${tab_molecule[${indice}]}_metapredVF.txt
+    rm ${tab_molecule[${indice}]}_metapredV1.txt ${tab_molecule[${indice}]}_metapred_BrutFormula.txt ${tab_molecule[${indice}]}_metapred_Mass.txt ${tab_molecule[${indice}]}_metapredVF.txt Prediction_metapred.csv
 done
 
 conda deactivate
