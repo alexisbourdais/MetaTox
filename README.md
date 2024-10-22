@@ -17,8 +17,8 @@ Linux and Windows (WSL) compatible. Not tested on Mac.
 - **Singularity** (https://docs.sylabs.io/guides/3.0/user-guide/installation.html)
 - **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 - Necessary for metatrans conda env install : `conda config --set channel_priority flexible`
-- See https://github.com/zhukeyun/Meta-Predictor to create a conda environment
-- Some packages : `sudo apt install zenity bc gawk dos2unix`
+- See https://github.com/zhukeyun/Meta-Predictor to create the Meta_Predictor conda environment
+- Some packages needed : `sudo apt install zenity bc gawk dos2unix`
 
 ### Download: 
 
