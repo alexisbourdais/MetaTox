@@ -17,14 +17,13 @@ Linux and Windows (WSL) compatible. Not tested on Mac.
 - **Singularity** (https://docs.sylabs.io/guides/3.0/user-guide/installation.html)
 - **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 - Necessary for metatrans conda env install : `conda config --set channel_priority flexible`
-- See https://github.com/zhukeyun/Meta-Predictor to create the Meta_Predictor conda environment
 - Some packages needed : `sudo apt install zenity bc gawk dos2unix`
 
 ### Download: 
 
 - `git clone https://github.com/alexisbourdais/MetaTox`
 - `cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor`
-- `cd Meta-Predictor/model/; mv SoM identifier SoM_identifier; mv metabolite predictor metabolite_predictor`
+- `cd Meta-Predictor/; mkdir prediction; cd model/; mv SoM identifier SoM_identifier; mv metabolite predictor metabolite_predictor`
 - download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/**
 
 ### Run
