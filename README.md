@@ -23,7 +23,7 @@ Linux and Windows (WSL) compatible. Not tested on Mac.
 
 - `git clone https://github.com/alexisbourdais/MetaTox`
 - `cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor`
-- `cd Meta-Predictor/; mkdir prediction; cd model/; mv SoM identifier SoM_identifier; mv metabolite predictor metabolite_predictor`
+- `cd Meta-Predictor/; mkdir prediction; cd model/; mv SoM\ identifier/ SoM_identifier; mv metabolite\ predictor/ metabolite_predictor`
 - download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/**
 
 ### Run
