@@ -70,7 +70,7 @@ Script_massFromFormula="${DirScripts}massFromFormula.py"
 DirFigBioTrans=${DirOutput}BioTrans_Figures
 mkdir $DirFigBioTrans
 
-cd ${DirBiotrans}
+#cd ${DirBiotrans}
 
 pat_bioTrans="^InChI;InChIKey"
 
