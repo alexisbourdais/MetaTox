@@ -83,10 +83,7 @@ fi
 if conda info --envs | grep -q metapredictor; then 
     echo "Conda environment "metapredictor" already exists"
 else 
-    echo "Conda environment "metapredictor" does not exists !
-        You need to install it manually (https://github.com/zhukeyun/Meta-Predictor)
-        "
-    exit 0
+    conda env create --name metapredictor --file ${DirCondaEnv}metapred_environment.yml
 fi
 
 ##############
@@ -137,22 +134,11 @@ do
 done
 
 metatrans_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetatrans} --min $min --max $max --beam $beam
-
-if conda info --envs | grep -q metapredictor; then 
-    metapredictor_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetapred}
+metapredictor_function --script $DirScripts --input $input_select --outdir ${DirOutput} --metadir ${DirMetapred}
+    
     echo "
     Enregistrement des résultats dans le dossier ${DirOutput}
 
     Fin de l'excecution du programme !
     "
-else 
-    echo "Conda environment "metapredictor" does not exists !
-    You need to install it manually (https://github.com/zhukeyun/Meta-Predictor)
-
-    Enregistrement des résultats dans le dossier ${DirOutput}
-
-    Fin de l'excecution du programme !
-    "
-
-    exit 0
 fi
