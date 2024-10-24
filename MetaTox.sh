@@ -141,4 +141,3 @@ metapredictor_function --script $DirScripts --input $input_select --outdir ${Dir
 
     Fin de l'excecution du programme !
     "
-fi
