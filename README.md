@@ -8,10 +8,6 @@ Biotransformer and Sygma are used via singularity, Meta-Trans & Meta-Predictor n
 
 As this project was designed for non-bioinformaticians, a graphical interface via zenity was included.
 
-Linux compatible.
-Windows-WSL2 (in progress) compatible. 
-Not tested on Mac.
-
 ## Quick start
 
 ### Required packages:
