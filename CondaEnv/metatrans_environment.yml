@@ -109,4 +109,3 @@ dependencies:
       - wrapt==1.15.0
       - wurlitzer==3.0.3
       - zipp==3.6.0
-prefix: /home/alexis/anaconda3/envs/metatrans

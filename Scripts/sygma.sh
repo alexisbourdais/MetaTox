@@ -33,6 +33,16 @@ while [ $# -gt 0 ] ; do
             shift
             shift
             ;;
+        -1|--phase1)
+            phase1="$2"
+            shift
+            shift
+            ;;
+        -2|--phase2)
+            phase2="$2"
+            shift
+            shift
+            ;;
         *)
             echo "Argument non défini : '$key'"
             exit 1                              
@@ -52,7 +62,7 @@ Script_massFromFormula="${DirScripts}massFromFormula.py"
 ### Program ###
 ###############
 
-conda activate my-rdkit-env
+conda activate rdkit
 
 DirFigSygma=${DirOutput}Sygma_Figures
 mkdir $DirFigSygma
@@ -61,10 +71,14 @@ pat_pathway="^>  <Pathway>"
 pat_score="^>  <Score>"
 
 echo "
-#####   Process of $molecule : $smile by Sygma   #####
+ =================================================================================
+||                                         
+||   Process of $molecule : $smile by Sygma
+||                                             
+ =================================================================================
 "
 
-singularity run docker://3dechem/sygma ${smile} >> "${DirOutput}${molecule}_Sygma.sdf"
+singularity run docker://3dechem/sygma ${smile} -1 $phase1 -2 $phase2 >> "${DirOutput}${molecule}_Sygma.sdf"
 
 #--phase1 Number of phase 1 cycles (default: 1)
 #--phase2 Number of phase 2 cycles (default: 1)

@@ -52,7 +52,6 @@ Script_massFromFormula="${DirScripts}massFromFormula.py"
 ### Program ###
 ###############
 
-
 DirOutputFig=${DirOutput}MetaPred_Figures
 mkdir $DirOutputFig
 
@@ -61,7 +60,11 @@ conda activate metapredictor
 cd ${DirMetapred}
 
 echo "
-    #####   Process of MetaPredictor   #####
+ =================================
+||                               ||
+||   Process of MetaPredictor    ||
+||                               ||
+ =================================
 "
 
 python prepare_input_file.py -input_file $input -output_file processed_data.txt
@@ -100,7 +103,7 @@ done < "Prediction_metapred.csv"
 
 rm Prediction_metapred.csv
 
-conda activate my-rdkit-env
+conda activate rdkit
 
 for indice in ${!tab_molecule[@]}
 do

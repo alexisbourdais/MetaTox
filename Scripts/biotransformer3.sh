@@ -43,16 +43,21 @@ while [ $# -gt 0 ] ; do
             shift
             shift
             ;;
+        -n|--nstep)
+            nstep="$2"
+            shift
+            shift
+            ;;
+        -c|--cmode)
+            cmode="$2"
+            shift
+            shift
+            ;;
         *)
             echo "Argument non défini : '$key'"
             exit 1                              
     esac
 done
-
-###Mode par défaut
-if [ -z $type ]; then
-	type="allHuman"
-fi
 
 #############
 ### Utils ###
@@ -77,16 +82,24 @@ pat_bioTrans="^InChI;InChIKey"
 for indice in ${!tab_molecule[@]}
 do
     echo "
-    #####   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformers3   #####
+ ===============================================================================================================
+||                                                                                           
+||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformers3
+||                                                                                            
+ ===============================================================================================================
     "
+    
     #Singularity version
     singularity exec https://depot.galaxyproject.org/singularity/biotransformer%3A3.0.20230403--hdfd78af_0 biotransformer \
-    -b ${type} \
-    -k pred \
+    -b "${type}" \
+    -k "pred" \
     -cm 3 \
+    -s "${nstep}" \
     -ismi "${tab_smiles[${indice}]}" \
     -ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
-    
+
+    #-a : annotate Search PuChem for each product, and annotate with CID and synonyms
+
     #Download version
     #java -jar BioTransformer3.0_20230525.jar -b ${type} -k pred -cm 3 -ismi "${tab_smiles[${indice}]}" -ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
 
@@ -108,7 +121,7 @@ do
     sed 's/;/,/g' ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv > ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv
     rm ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv
 
-    ###Réalisation des structures
+    ###Structure construction
     python3 $Script_SmitoStr -i "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv"
     mkdir ${DirFigBioTrans}/${tab_molecule[${indice}]}
     mv Molecule*.jpeg ${DirFigBioTrans}/${tab_molecule[${indice}]}
@@ -120,11 +133,11 @@ do
         python3 $Script_massFromFormula $formula
     done < "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv" >> "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_mass.csv"
 
-    #Fusion des colonnes
+    #Merging columns
     paste -d ',' ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_mass.csv > ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_VF.csv
     rm ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_mass.csv
 
-    #Creation des entetes
+    #Creating entetes
     echo "Métabolites,SMILES,FormuleBrute,ALogP,Pathway,Enzyme,Systeme,Masse(+H)" > ${DirOutput}${tab_molecule[${indice}]}_BioTransformer3.csv
     while read line
     do 

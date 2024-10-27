@@ -54,21 +54,6 @@ while [ $# -gt 0 ] ; do
     esac
 done
 
-###Beam par défaut
-if [ -z $BEAM ] || [[ ! $BEAM = +([0-9]) ]]; then
-	BEAM=5
-fi
-
-###Min par défaut
-if [ -z $MIN ] || [[ ! $MIN = +([0-9]) ]]; then
-	MIN=5 
-fi
-
-###Max par défaut
-if [ -z $MAX ] || [[ ! $MAX = +([0-9]) ]]; then
-	MAX=120
-fi
-
 #############
 ### Utils ###
 #############
@@ -98,14 +83,24 @@ mkdir $STORE
 
 ### Step 1 : Prepare data
 echo "
-#####		Process of MetaTrans step 1 : Prepara data		#####
+ ==================================================
+||                                                ||
+||   Process of MetaTrans step 1 : Prepara data   ||
+||                                                ||
+ ==================================================
 "
+
 python prepare_input_file.py -input_file ${input} -output_file ${outfile}
 
 ### Step 2 : Translate
 echo "
-#####		Process of MetaTrans step 2 : Translate		#####
+ ==================================================
+||                                                ||
+||   Process of MetaTrans step 2 : Translate      ||
+||                                                ||
+ ==================================================
 "
+
 for model_id in {1,2,3,4,5,6}
 do
 	MODEL_FILE='models/model_'$model_id'.pt'
@@ -116,7 +111,11 @@ done
 
 ### Step 3 : Get predictions
 echo "
-#####		Process of MetaTrans step 2 : Get prediction		#####
+ ========================================================
+||                                                      ||
+||   Process of MetaTrans step 3 : Get prediction       ||
+||                                                      ||
+ ========================================================
 "
 python process_predictions.py \
 -input_file ${input} \
@@ -157,7 +156,7 @@ done < "Prediction_MetaTrans.csv"
 
 rm ${DirOutput}${results}
 
-conda activate my-rdkit-env
+conda activate rdkit
 
 for indice in ${!tab_molecule[@]}
 do
