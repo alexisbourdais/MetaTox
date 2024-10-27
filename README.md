@@ -36,7 +36,9 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
 
 ### Run
 - `chmod +x MetaTox.sh`
-- `./MetaTox.sh`
+- `./MetaTox.sh` to activate zenity
+- `./MetaTox.sh --input input_file` to skip zenity
+- `./MetaTox.sh -h` to see available parameters when zenity was skipped
 
 ## Documentation
 
