@@ -36,7 +36,7 @@ help_msg() {
     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
     rm ~/miniconda3/miniconda.sh
 
-- Some package :
+- Some packages :
     sudo apt install -y zenity bc gawk dos2unix
 
 - If error when creating metatrans conda environment, run before using MetaTox : conda config --set channel_priority flexible
@@ -70,7 +70,7 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
 
         -m|--metapred   To activate metapredictor
 
-        -t|--type   Type of biotransformation to use with Biotransformer3:
+        -t|--type   Type of biotransformation to use with BioTransformer3:
                        [allHuman]  : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
                         ecbased    : Prediction of promiscuous metabolism (e.g. glycerolipid metabolism). EC-based metabolism is also called Enzyme Commission based metabolism
                         cyp450     : CYP450 metabolism prediction 
@@ -79,15 +79,15 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
                         superbio   : Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)
                         envimicro  : Environmental microbial
 
-        -n|--nstep  The number of steps for the prediction [default=2]
+        -n|--nstep  The number of steps for the prediction by BioTransformers [default=1]
 
-        -c|--cmode  CYP450 prediction Mode: 
+        -c|--cmode  CYP450 prediction Mode uses by BioTransformers: 
                         1  = CypReact+BioTransformer rules
                         2  = CyProduct only
                        [3] = CypReact+BioTransformer rules+CyProducts
                     
-        -1|--phase1 Number of reaction cycles Phase 1 [defaut=1]
-        -2|--phase2 Number of reaction cycles Phase 2 [defaut=1]
+        -1|--phase1 Number of reaction cycles Phase 1 by SygMa [defaut=1]
+        -2|--phase2 Number of reaction cycles Phase 2 by SygMa [defaut=1]
 
 """
 }
@@ -213,28 +213,28 @@ if [ -z $cmode ] || [[ ! $cmode = +([0-3]) ]]; then
 fi
 
 ##### Meta-Trans option
-###Beam par défaut
+###Default Beam
 if [ -z $BEAM ] || [[ ! $BEAM = +([0-9]) ]]; then
 	BEAM=5
 fi
 
-###Min par défaut
+###Default min
 if [ -z $MIN ] || [[ ! $MIN = +([0-9]) ]]; then
 	MIN=5 
 fi
 
-###Max par défaut
+###Default Max
 if [ -z $MAX ] || [[ ! $MAX = +([0-9]) ]]; then
 	MAX=120
 fi
 
 ##### Sygma option
-###phase1 par défaut
+###Default phase1
 if [ -z $phase1 ] || [[ ! $phase1 = +([0-9]) ]]; then
 	phase1=1
 fi
 
-###phase2 par défaut
+###Default phase2
 if [ -z $phase2 ] || [[ ! $phase2 = +([0-9]) ]]; then
 	phase2=1 
 fi
@@ -303,7 +303,7 @@ done
 
 metatrans_function --script ${DirScripts} --input "${path_input}" --outdir ${DirOutput} --metadir ${DirMetatrans} --min ${MIN} --max ${MAX} --beam ${BEAM}
 
-if $metapred_activate; then
+if ${metapred_activate}; then
     metapredictor_function --script ${DirScripts} --input "${path_input}" --outdir ${DirOutput} --metadir ${DirMetapred}
 fi
     
