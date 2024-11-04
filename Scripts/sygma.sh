@@ -80,20 +80,18 @@ echo "
 
 singularity run docker://3dechem/sygma ${smile} -1 $phase1 -2 $phase2 >> "${DirOutput}${molecule}_Sygma.sdf"
 
-#--phase1 Number of phase 1 cycles (default: 1)
-#--phase2 Number of phase 2 cycles (default: 1)
 #-o, --outputtype Molecule output type (default: sdf)
 
-###Conversion des sdf en smiles
+###Converting the sdf into smiles
 python3 ${Script_SdftoSmi} ${DirOutput}${molecule}_Sygma.sdf
 mv ${PWD}/smiles.txt ${DirOutput}Prediction_sygma_${molecule}_smiles.txt
 
-###Réalisation des structures
+###Creating figures
 mkdir ${DirFigSygma}/${molecule}
 cd ${DirFigSygma}/${molecule}
 python3 $Script_SmitoStr -i ${DirOutput}Prediction_sygma_${molecule}_smiles.txt
 
-#Ajout des scores & pathway du fichier sdf dans le fichier txt
+#Adding scores & pathways from the sdf file to the txt file
 while read line
 do
     if [[ $line_pre == "pathway" ]]; then
@@ -132,15 +130,15 @@ do
     python3 $Script_massFromFormula $formula
 done < ${DirOutput}${molecule}_Sygma_formuleBrute.txt >> ${DirOutput}${molecule}_Sygma_mass.txt
 
-#Compilation des colonnes
+#Column compilation
 paste -d ',' ${DirOutput}${molecule}_Sygma_SmilesPathScore.txt ${DirOutput}${molecule}_Sygma_formuleBrute.txt ${DirOutput}${molecule}_Sygma_mass.txt > ${DirOutput}${molecule}_SygmaVF.txt
 rm ${DirOutput}${molecule}_Sygma_SmilesPathScore.txt ${DirOutput}${molecule}_Sygma_formuleBrute.txt ${DirOutput}${molecule}_Sygma_mass.txt 
 
-#Création des entêtes
+#Header creation
 echo "Métabolites,SMILES,Pathway,Score,FormuleBrute,Masse(+H)" > ${DirOutput}${molecule}_Sygma.csv
 while read line
 do 
     echo $line | sed "s/;//g"
 done < ${DirOutput}${molecule}_SygmaVF.txt >> ${DirOutput}${molecule}_Sygma.csv
-rm ${DirOutput}${molecule}_SygmaVF.txt
+rm ${DirOutput}${molecule}_SygmaVF.txt 
 }

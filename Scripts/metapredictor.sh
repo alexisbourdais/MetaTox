@@ -34,7 +34,7 @@ while [ $# -gt 0 ] ; do
             shift
             ;;
         *)
-            echo "Argument non défini : '$key'"
+            echo "Argument non defini : '$key'"
             exit 1                              
     esac
 done
@@ -72,17 +72,17 @@ python prepare_input_file.py -input_file $input -output_file processed_data.txt
 
 conda deactivate
 
-### Déplacement des fichiers de résultats et suppression des fichiers intermédiaires
+### Mv results and remove temp files
 mv prediction/predict.csv ${DirOutput}Prediction_metapred.csv
 mv Figures/* ${DirOutputFig}
 rm prediction/*
 rm processed_data.txt
 
-### Retraitement fichier de résultats metapred ###
+### Reprocessing metapred results file ###
 cd ${DirOutput}
 pat='^Name'
 
-#Séparation des résultats dans des fichiers distincts pour chaques molécules
+#Separation of results into separate files for each molecule
 while read a
 do
     if [[ $a =~ $pat ]]; then
@@ -124,7 +124,7 @@ do
     #Complilation des colonnes
     paste -d ',' ${tab_molecule[${indice}]}_metapredV1.txt ${tab_molecule[${indice}]}_metapred_BrutFormula.txt ${tab_molecule[${indice}]}_metapred_Mass.txt > ${tab_molecule[${indice}]}_metapredVF.txt
 
-    #Création des entêtes
+    #Header creation
     echo "Métabolites,SMILES,FormuleBrute,Masse(+H)" > ${tab_molecule[${indice}]}_metapred.csv
     while read line
     do

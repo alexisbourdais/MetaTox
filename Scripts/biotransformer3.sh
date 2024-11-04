@@ -79,73 +79,69 @@ mkdir $DirFigBioTrans
 
 pat_bioTrans="^InChI;InChIKey"
 
-for indice in ${!tab_molecule[@]}
-do
-    echo "
- ===============================================================================================================
+echo "
+===============================================================================================================
 ||                                                                                           
-||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformers3
+||   Process of ${molecule} : ${smile} by Biotransformers3
 ||                                                                                            
- ===============================================================================================================
-    "
-    
-    #Singularity version
-    singularity exec https://depot.galaxyproject.org/singularity/biotransformer%3A3.0.20230403--hdfd78af_0 biotransformer \
-    -b "${type}" \
-    -k "pred" \
-    -cm 3 \
-    -s "${nstep}" \
-    -ismi "${tab_smiles[${indice}]}" \
-    -ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
+===============================================================================================================
+"
 
-    #-a : annotate Search PuChem for each product, and annotate with CID and synonyms
+#Singularity version
+singularity exec https://depot.galaxyproject.org/singularity/biotransformer%3A3.0.20230403--hdfd78af_0 biotransformer \
+-b "${type}" \
+-k "pred" \
+-cm 3 \
+-s "${nstep}" \
+-ismi "${smile}" \
+-ocsv "${DirOutput}${molecule}_Biotransformer3.csv"
 
-    #Download version
-    #java -jar BioTransformer3.0_20230525.jar -b ${type} -k pred -cm 3 -ismi "${tab_smiles[${indice}]}" -ocsv "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv"
+#-a : annotate Search PuChem for each product, and annotate with CID and synonyms
 
-    #Changement de format du csv
-    csvformat -D ";" "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
+#Download version
+#java -jar BioTransformer3.0_20230525.jar -b ${type} -k pred -cm 3 -ismi "${smile}" -ocsv "${DirOutput}${molecule}_Biotransformer3.csv"
 
-    #Suppression des colonnes inutiles
-    molecule_nb=0
-    while read line
-    do
-        if [[ $line =~ $pat_bioTrans ]]; then
-            :
-        else
-            ((molecule_nb+=1))
-            info=$(echo $line | cut -d\; -f3,6,8,14,16,17)
-            echo "Molecule_${molecule_nb};${info}" >> ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv
-        fi
-    done < ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut.csv
-    sed 's/;/,/g' ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv > ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv
-    rm ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3.csv
+#Changement csv format
+csvformat -D ";" "${DirOutput}${molecule}_Biotransformer3.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${DirOutput}${molecule}_Biotransformer3_brut.csv"
 
-    ###Structure construction
-    python3 $Script_SmitoStr -i "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv"
-    mkdir ${DirFigBioTrans}/${tab_molecule[${indice}]}
-    mv Molecule*.jpeg ${DirFigBioTrans}/${tab_molecule[${indice}]}
+#Remove useless columns
+molecule_nb=0
+while read line
+do
+    if [[ $line =~ $pat_bioTrans ]]; then
+        :
+    else
+        ((molecule_nb+=1))
+        info=$(echo $line | cut -d\; -f3,6,8,14,16,17)
+        echo "Molecule_${molecule_nb};${info}" >> ${DirOutput}${molecule}_Biotransformer3_brut2.csv
+    fi
+done < ${DirOutput}${molecule}_Biotransformer3_brut.csv
+sed 's/;/,/g' ${DirOutput}${molecule}_Biotransformer3_brut2.csv > ${DirOutput}${molecule}_Biotransformer3_brut3.csv
+rm ${DirOutput}${molecule}_Biotransformer3_brut.csv ${DirOutput}${molecule}_Biotransformer3_brut2.csv ${DirOutput}${molecule}_Biotransformer3.csv
 
-    #Calcul Mass+H from brut formula
-    while read line
-    do
-        formula=$(echo $line | cut -d\, -f3)
-        python3 $Script_massFromFormula $formula
-    done < "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv" >> "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_mass.csv"
+###Structure construction
+python3 $Script_SmitoStr -i "${DirOutput}${molecule}_Biotransformer3_brut3.csv"
+mkdir ${DirFigBioTrans}/${molecule}
+mv Molecule*.jpeg ${DirFigBioTrans}/${molecule}
 
-    #Merging columns
-    paste -d ',' ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_mass.csv > ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_VF.csv
-    rm ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_mass.csv
+#Calcul Mass+H from brut formula
+while read line
+do
+    formula=$(echo $line | cut -d\, -f3)
+    python3 $Script_massFromFormula $formula
+done < "${DirOutput}${molecule}_Biotransformer3_brut3.csv" >> "${DirOutput}${molecule}_Biotransformer3_mass.csv"
 
-    #Creating entetes
-    echo "Métabolites,SMILES,FormuleBrute,ALogP,Pathway,Enzyme,Systeme,Masse(+H)" > ${DirOutput}${tab_molecule[${indice}]}_BioTransformer3.csv
-    while read line
-    do 
-        echo $line
-    done < "${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_VF.csv" >> ${DirOutput}${tab_molecule[${indice}]}_BioTransformer3.csv
-    rm ${DirOutput}${tab_molecule[${indice}]}_Biotransformer3_VF.csv
+#Merging columns
+paste -d ',' ${DirOutput}${molecule}_Biotransformer3_brut3.csv ${DirOutput}${molecule}_Biotransformer3_mass.csv > ${DirOutput}${molecule}_Biotransformer3_VF.csv
+rm ${DirOutput}${molecule}_Biotransformer3_brut3.csv ${DirOutput}${molecule}_Biotransformer3_mass.csv
 
-done
+#Creating entetes
+echo "Métabolites,SMILES,FormuleBrute,ALogP,Pathway,Enzyme,Systeme,Masse(+H)" > ${DirOutput}${molecule}_BioTransformer3.csv
+while read line
+do 
+    echo $line
+done < "${DirOutput}${molecule}_Biotransformer3_VF.csv" >> ${DirOutput}${molecule}_BioTransformer3.csv
+rm ${DirOutput}${molecule}_Biotransformer3_VF.csv
 
 conda deactivate
 }
