@@ -33,12 +33,11 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
 
 - `./Metatox.sh -h` to see available parameters when zenity was skipped
 
+      REQUIRED parameter
 
-    REQUIRED parameter
-
-        -i|--input   
-
-    OPTIONAL parameter
+        -i|--input
+  
+      OPTIONAL parameter
 
         -m|--metapred   To activate metapredictor [No]
 
