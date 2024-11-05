@@ -28,7 +28,40 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
 ### Run
 - `./Metatox.sh` to activate zenity
 - `./Metatox.sh --input input_file` to skip zenity
+
+## Parameters
+
 - `./Metatox.sh -h` to see available parameters when zenity was skipped
+
+
+    REQUIRED parameter
+
+        -i|--input   
+
+    OPTIONAL parameter
+
+        -m|--metapred   To activate metapredictor [No]
+
+        -t|--type       Type of biotransformation to use with BioTransformer3:
+                            [allHuman]  : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
+                            ecbased    : Prediction of promiscuous metabolism (e.g. glycerolipid metabolism). EC-based metabolism is also called Enzyme Commission based metabolism
+                            cyp450     : CYP450 metabolism prediction 
+                            phaseII    : Prediction of major conjugative reactions, including glucuronidation, sulfation, glycine transfer, N-acetyl transfer, and glutathione transfer, among others 
+                            hgut       : Human gut microbial
+                            superbio   : Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)
+                            envimicro  : Environmental microbial
+
+        -n|--nstep      The number of steps for the prediction by BioTransformers [default=2]
+
+        -c|--cmode      CYP450 prediction Mode uses by BioTransformers: 
+                            1  = CypReact+BioTransformer rules
+                            2  = CyProduct only
+                           [3] = CypReact+BioTransformer rules+CyProducts
+                    
+        -1|--phase1     Number of reaction cycles Phase 1 by SygMa [defaut=1]
+        -2|--phase2     Number of reaction cycles Phase 2 by SygMa [defaut=1]
+
+        -p|--tmp        To keep intermediate files [No]
 
 ## Documentation
 
