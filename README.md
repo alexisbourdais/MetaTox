@@ -29,13 +29,13 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
 
 ### Download project, MetaTrans-MetaPredictor directory and configure them: 
 
-- `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh MetaTox.sh`
+- `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh Metatox.sh`
 - download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/**
 
 ### Run
-- `./MetaTox.sh` to activate zenity
-- `./MetaTox.sh --input input_file` to skip zenity
-- `./MetaTox.sh -h` to see available parameters when zenity was skipped
+- `./Metatox.sh` to activate zenity
+- `./Metatox.sh --input input_file` to skip zenity
+- `./Metatox.sh -h` to see available parameters when zenity was skipped
 
 ## Documentation
 
