@@ -189,6 +189,9 @@ DirOutput="${work_dir}/Results_Prediction/"
 mkdir $DirOutput
 
 tmp="${work_dir}/tmp/"
+if test -d $tmp; then
+  rm -r $tmp
+fi
 mkdir $tmp
 
 #For download version of biotransformer3
