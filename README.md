@@ -15,6 +15,7 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
 - **Singularity** (https://docs.sylabs.io/guides/3.0/user-guide/installation.html) :
   `sudo apt-get install -y singularity-container`
 - **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) :
+  
   `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh; chmod +x Miniconda3-latest-Linux-x86_64.sh; ./Miniconda3-latest-Linux-x86_64.sh`
 - Necessary for metatrans conda env install : `conda config --set channel_priority flexible`
 - Some packages needed : `sudo apt install zenity bc gawk dos2unix csvkit`
