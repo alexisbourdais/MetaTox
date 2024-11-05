@@ -786,7 +786,7 @@ do
     "
     python3 $Script_SmitoStr -i "${tmp}ListeSmile.txt"
     mkdir "${DirOutput}${tab_molecule[${indice}]}_figures"
-    mv Molecule*.jpeg "${DirOutput}${tab_molecule[${indice}]}"
+    mv Molecule*.jpeg "${DirOutput}${tab_molecule[${indice}]}_figures"
 done
 
 if ${keep_tmp}; then
