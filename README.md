@@ -8,6 +8,8 @@ Biotransformer and Sygma are used via singularity, Meta-Trans & Meta-Predictor n
 
 As this project was designed for non-bioinformaticians, a graphical interface via zenity was included (optional).
 
+Due to hardware limitations, MetaTrans and Meta-Predictor may not function correctly. Their use is therefore disabled by default.
+
 ## Quick start
 
 ### Required packages:
@@ -23,7 +25,7 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
 ### Download project, MetaTrans-MetaPredictor directory and configure them: 
 
 - `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh Metatox.sh`
-- download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/**
+- download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/** (unarchived)
 
 ### Run
 - `./Metatox.sh` to activate zenity
@@ -39,7 +41,7 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
   
       OPTIONAL parameter
 
-        -m|--metapred   To activate metapredictor [No]
+        -m|--meta       To activate metaTrans and meta-Predictor [No]
 
         -t|--type       Type of biotransformation to use with BioTransformer3:
                             [allHuman]  : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
@@ -50,9 +52,9 @@ As this project was designed for non-bioinformaticians, a graphical interface vi
                             superbio   : Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)
                             envimicro  : Environmental microbial
 
-        -n|--nstep      The number of steps for the prediction by BioTransformers [default=2]
+        -n|--nstep      The number of steps for the prediction by BioTransformer [default=2]
 
-        -c|--cmode      CYP450 prediction Mode uses by BioTransformers: 
+        -c|--cmode      CYP450 prediction Mode uses by BioTransformer: 
                             1  = CypReact+BioTransformer rules
                             2  = CyProduct only
                            [3] = CypReact+BioTransformer rules+CyProducts
