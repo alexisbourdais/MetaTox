@@ -308,6 +308,29 @@ if [ -z $keep_tmp ]; then
 	keep_tmp=false
 fi
 
+echo "
+                 ===============
+                ||             ||
+                ||   MetaTox   ||
+                ||             ||
+                 ===============
+
+ ==================================================
+||                                                 ||
+||   https://github.com/alexisbourdais/MetaTox/    ||
+||                                                 ||
+ ==================================================
+
+    - BioTransformer bio-reaction : $type
+    - BioTransformer cycle number : $nstep
+    - Biotransformer CYP450 prediction Mode : $cmode
+
+    - SygMa Phase 1 cycle number : $phase1
+    - SygMa Phase 2 cycle number : $phase2
+
+    - MetaTrans & Meta-Predictor activation : $meta_activate
+"
+
 #########################
 ### Environment conda ###
 #########################
@@ -564,9 +587,6 @@ do
         fi
     done < "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
 
-    #useless
-    #sed 's/;/,/g' ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv > ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv
-
     echo "
      ===================================================
     ||                                                 ||                                                         
@@ -630,11 +650,11 @@ do
     ##################
 
     echo "
-     =================================================================================
+     =========================================================================================================
     ||                                         
     ||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Sygma
     ||                                             
-     =================================================================================
+     =========================================================================================================
     "
 
     pat_pathway="^>  <Pathway>"
