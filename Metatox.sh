@@ -63,7 +63,7 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
 
     OPTIONAL parameter
 
-        -m|--metapred   To activate metapredictor [No]
+        -m|--meta      To activate metaTrans and meta-Predictor [No]
 
         -t|--type       Type of biotransformation to use with BioTransformer3:
                             [allHuman]  : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
@@ -74,9 +74,9 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
                             superbio   : Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)
                             envimicro  : Environmental microbial
 
-        -n|--nstep      The number of steps for the prediction by BioTransformers [default=2]
+        -n|--nstep      The number of steps for the prediction by BioTransformer [default=1]
 
-        -c|--cmode      CYP450 prediction Mode uses by BioTransformers: 
+        -c|--cmode      CYP450 prediction Mode uses by BioTransformer: 
                             1  = CypReact+BioTransformer rules
                             2  = CyProduct only
                            [3] = CypReact+BioTransformer rules+CyProducts
@@ -122,8 +122,8 @@ while [ $# -gt 0 ] ; do
             shift
             shift
             ;;
-        -m|--metapred)
-            metapred_activate=true
+        -m|--meta)
+            meta_activate=true
             shift
             ;;
         -p|--tmp)
@@ -237,16 +237,16 @@ if [ -z $input ]; then
     type=$(zenity --list --title="Biotransformer 3 model" --text="Choose the type of biotransformation to use with Biotransformer3" --column="Type" --column="Description" \
     allHuman "Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step" ecbased "Prediction of promiscuous metabolism (e.g. glycerolipid metabolism). EC-based metabolism is also called Enzyme Commission based metabolism" cyp450 "CYP450 metabolism prediction" phaseII "Prediction of major conjugative reactions, including glucuronidation, sulfation, glycine transfer, N-acetyl transfer, and glutathione transfer, among others" hgut "Human gut microbial" superbio "Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)" envimicro "Environmental microbial" )
     
-    option_biotrans=$(zenity --forms --title="Biotransformer options" --text="Directly Validate to apply default values" --add-entry="The number of steps for the prediction [default=2]" --add-entry="CYP450 prediction Mode: 1=CypReact+BioTransformer rules; 2=CyProduct only; 3=CypReact+BioTransformer rules+CyProducts [Default=3]" --separator=",")
+    option_biotrans=$(zenity --forms --title="Biotransformer options" --text="Directly Validate to apply default values" --add-entry="The number of steps for the prediction [default=1]" --add-entry="CYP450 prediction Mode: 1=CypReact+BioTransformer rules; 2=CyProduct only; 3=CypReact+BioTransformer rules+CyProducts [Default=3]" --separator=",")
         nstep=$(echo "$option_biotrans" | cut -d "," -f1)
         cmode=$(echo "$option_biotrans" | cut -d "," -f2)
 
-    zenity --question --title="Meta-Predictor Activation" --text="Do you want to activate Meta-Predictor ?"
+    zenity --question --title="Meta-Predictor Activation" --text="Do you want to activate MetaTrans and Meta-Predictor ?"
     metapred_activate_answer=$?
     if [ $metapred_activate_answer -eq 0 ]; then
-	    metapred_activate=true
+	    meta_activate=true
     else [ $metapred_activate_answer -eq 1 ]
-    	metapred_activate=false
+    	meta_activate=false
     fi
 fi
 
@@ -262,7 +262,7 @@ fi
 
 ###Default nsteps
 if [ -z $nstep ] || [[ ! $nstep = +([0-9]) ]]; then
-	nstep="2"
+	nstep="1"
 fi
 
 ###Default cmode
@@ -299,8 +299,8 @@ fi
 
 ##### Meta-Predictor option
 ###Activation
-if [ -z $metapred_activate ]; then
-	metapred_activate=false
+if [ -z $meta_activate ]; then
+	meta_activate=false
 fi
 
 ###Keep intermediate files
@@ -315,23 +315,23 @@ fi
 eval "$(conda shell.bash hook)"
 #conda init --all
 
-if conda info --envs | grep -q metatrans; then 
-    echo "Conda environment "metatrans" already exists"
-else 
-    conda env create --name metatrans --file ${DirCondaEnv}metatrans_environment.yml
-fi
-
 if conda info --envs | grep -q rdkit; then 
     echo "Conda environment "rdkit" already exists"
 else 
     conda env create --name rdkit --file ${DirCondaEnv}rdkit_environment.yml
 fi
 
-if $metapred_activate; then
+if $meta_activate; then
     if conda info --envs | grep -q metapredictor; then 
         echo "Conda environment "metapredictor" already exists"
     else 
         conda env create --name metapredictor --file ${DirCondaEnv}metapred_environment.yml
+    fi
+
+    if conda info --envs | grep -q metatrans; then 
+        echo "Conda environment "metatrans" already exists"
+    else 
+        conda env create --name metatrans --file ${DirCondaEnv}metatrans_environment.yml
     fi
 fi
 
@@ -354,97 +354,97 @@ done < $input
 
 path_input="$(realpath ${input})"
 
-##################
-### META-TRANS ###
-##################
+if ${meta_activate}; then
 
-conda activate metatrans
+    ##################
+    ### META-TRANS ###
+    ##################
 
-cd $DirMetatrans
+    conda activate metatrans
 
-#Variables from MetaTrans
-outfile=processed_data.txt
-results=Prediction_MetaTrans.csv
-images=./Figures/*
-STORE=predictions/  #directory for output process
-mkdir $STORE
+    cd $DirMetatrans
 
-### Step 1 : Prepare data
-echo "
+    #Variables from MetaTrans
+    outfile=processed_data.txt
+    results=Prediction_MetaTrans.csv
+    images=./Figures/*
+    STORE=predictions/  #directory for output process
+    mkdir $STORE
+
+    ### Step 1 : Prepare data
+    echo "
      ==================================================
     ||                                                ||
     ||   Process of MetaTrans step 1 : Prepara data   ||
     ||                                                ||
      ==================================================
-"
+    "
 
-python prepare_input_file.py -input_file "${path_input}" -output_file ${outfile}
+    python prepare_input_file.py -input_file "${path_input}" -output_file ${outfile}
 
-### Step 2 : Translate
-echo "
+    ### Step 2 : Translate
+    echo "
      ==================================================
     ||                                                ||
     ||   Process of MetaTrans step 2 : Translate      ||
     ||                                                ||
      ==================================================
-"
+    "
 
-for model_id in {1,2,3,4,5,6}
-do
-	MODEL_FILE='models/model_'$model_id'.pt'
-	OUT_NAME='model'$model_id'_beam'$BEAM'.txt'
-	OUT_FILE=$STORE$OUT_NAME
-	python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX 
-done
+    for model_id in {1,2,3,4,5,6}
+    do
+        MODEL_FILE='models/model_'$model_id'.pt'
+        OUT_NAME='model'$model_id'_beam'$BEAM'.txt'
+        OUT_FILE=$STORE$OUT_NAME
+        python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX 
+    done
 
-### Step 3 : Get predictions
-echo "
+    ### Step 3 : Get predictions
+    echo "
      ========================================================
     ||                                                      ||
     ||   Process of MetaTrans step 3 : Get prediction       ||
     ||                                                      ||
      ========================================================
-"
+    "
 
-python process_predictions.py \
--input_file "${path_input}" \
--output_file ${results} \
--beam_size ${BEAM} \
--visualise_molecules True
+    python process_predictions.py \
+    -input_file "${path_input}" \
+    -output_file ${results} \
+    -beam_size ${BEAM} \
+    -visualise_molecules True
 
-conda deactivate
+    conda deactivate
 
-### Déplacement des fichiers de résultats et suppression des fichiers intermédiaires
-rm -r ${outfile} ${STORE} ${images}
-mv ${results} ${tmp}
-cd ${tmp}
+    #Moving results files and deleting intermediate files
+    rm -r ${outfile} ${STORE} ${images}
+    mv ${results} ${tmp}
+    cd ${tmp}
 
-#Séparation des résultats dans des fichiers distincts pour chaques molécules
-pat='^Molecule'
+    #Separation of results into separate files for each molecule
+    pat='^Molecule'
 
-while read a
-do
-    if [[ $a =~ $pat ]]; then
-        :
+    while read a
+    do
+        if [[ $a =~ $pat ]]; then
+            :
 
-    else
-        MoleculeID=$(echo $a | cut -d\, -f1)
-        #SmileParent=$(echo $a | cut -d\, -f2)
-        SmileMetabo=$(echo $a | cut -d\, -f3)
-        read -ra tab_metabo <<< "$SmileMetabo"
-        #n_metabo=0
-        for i in ${tab_metabo[@]}; do
-            #((n_metabo+=1))
-            echo "${i}" >> "${MoleculeID}_Metatrans.csv"
-        done
-    fi
-done < "Prediction_MetaTrans.csv"
+        else
+            MoleculeID=$(echo $a | cut -d\, -f1)
+            #SmileParent=$(echo $a | cut -d\, -f2)
+            SmileMetabo=$(echo $a | cut -d\, -f3)
+            read -ra tab_metabo <<< "$SmileMetabo"
+            #n_metabo=0
+            for i in ${tab_metabo[@]}; do
+                #((n_metabo+=1))
+                echo "${i}" >> "${MoleculeID}_Metatrans.csv"
+            done
+        fi
+    done < "Prediction_MetaTrans.csv"
 
-######################
-### META-PREDICTOR ###
-######################
-
-if ${metapred_activate}; then
+    ######################
+    ### META-PREDICTOR ###
+    ######################
 
     echo "
      =================================
@@ -518,7 +518,7 @@ do
     echo "
      ===============================================================================================================
     ||                                                                                           
-    ||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformers3
+    ||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformer3
     ||                                                                                            
      ===============================================================================================================
     "
@@ -537,10 +537,25 @@ do
     #Changement csv format
     csvformat -D ";" "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
     
+    echo "
+     ===================================================
+    ||                                                 ||                                                         
+    ||   BioTransformer Results processing step 1/2    ||
+    ||                                                 ||                                                       
+     ===================================================
+    "
+
     #Keep informative column
     pat_bioTrans="^InChI;InChIKey*"
+
+    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv" | wc -l )
+    current_task=0
+
     while read line
     do
+        ((current_task+=1))
+        show_progress $current_task $tasks_in_total
+
         if [[ $line =~ $pat_bioTrans ]]; then
             :
         else
@@ -549,22 +564,37 @@ do
         fi
     done < "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
 
-    sed 's/;/,/g' ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv > ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv
+    #useless
+    #sed 's/;/,/g' ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv > ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv
+
+    echo "
+     ===================================================
+    ||                                                 ||                                                         
+    ||   BioTransformer Results processing step 2/2    ||
+    ||                                                 ||                                                       
+     ===================================================
+    "
 
     conda activate rdkit
 
+    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv" | wc -l )
+    current_task=0
+
     while read line
     do
-        smiles=$(echo "$line" | cut -d',' -f1)
+        ((current_task+=1))
+        show_progress $current_task $tasks_in_total
+
+        smiles=$(echo "$line" | cut -d';' -f1)
         smart=$(python3 $Script_Smiles2Smart $smiles)
         new_smiles=$(python3 $Script_Smart2Smiles $smart)
         formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
         #formulebrute=$(echo "$line" | cut -d',' -f2)
-        score=$(echo "$line" | cut -d',' -f3)
-        pathway=$(echo "$line" | cut -d',' -f4)
-        enzyme=$(echo "$line" | cut -d',' -f5)
-        system=$(echo "$line" | cut -d',' -f6)
-        smiles_precursor=$(echo "$line" | cut -d',' -f7)
+        score=$(echo "$line" | cut -d';' -f3)
+        pathway=$(echo "$line" | cut -d';' -f4)
+        enzyme=$(echo "$line" | cut -d';' -f5)
+        system=$(echo "$line" | cut -d';' -f6)
+        smiles_precursor=$(echo "$line" | cut -d';' -f7)
         smart_precursor=$(python3 $Script_Smiles2Smart $smiles_precursor)
         new_smiles_precursor=$(python3 $Script_Smart2Smiles $smart_precursor)
 
@@ -593,7 +623,7 @@ do
             biotrans_precursor_smile_tab["${index}"]=${new_smiles_precursor}
             biotrans_precursor_formule_tab["${index}"]=$(python3 $Script_FormulaFromSmiles $new_smiles_precursor)
         fi
-    done < "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut3.csv"
+    done < "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv"
 
     ##################
     ###    SygMa   ###
@@ -616,9 +646,23 @@ do
     python3 ${Script_SdftoSmi} ${tmp}${tab_molecule[${indice}]}_Sygma.sdf
     mv ${PWD}/smiles.txt ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_smiles.txt
 
+    echo "
+     ==========================================
+    ||                                        ||                                                         
+    ||   SygMa Results processing step 1/2    ||
+    ||                                        ||                                                       
+     ==========================================
+    "
+
+    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Sygma.sdf" | wc -l )
+    current_task=0
+
     #Adding scores & pathways from the sdf file to the txt file
     while read line
     do
+        ((current_task+=1))
+        show_progress $current_task $tasks_in_total
+
         if [[ $line_pre == "pathway" ]]; then
             echo $line | sed 's/,/;/g' >> "${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Path.txt"
             line_pre=""
@@ -640,10 +684,24 @@ do
 
     paste -d ',' ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_smiles.txt ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Path.txt ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Score.txt > ${tmp}${tab_molecule[${indice}]}_Sygma_SmilesPathScore.txt
 
+    echo "
+     ==========================================
+    ||                                        ||                                                         
+    ||   SygMa Results processing step 2/2    ||
+    ||                                        ||                                                       
+     ==========================================
+    "
+
+    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Sygma_SmilesPathScore.txt" | wc -l )
+    current_task=0
+
     pat_parent="^Molecule1"
 
     while read -r line
     do
+        ((current_task+=1))
+        show_progress $current_task $tasks_in_total
+
         if [[ $line =~ $pat_parent ]]; then
             :
         else
@@ -675,37 +733,67 @@ do
         fi
     done < "${tmp}${tab_molecule[${indice}]}_Sygma_SmilesPathScore.txt"
 
-    #################
-    ### MetaTrans ###
-    #################
+    if ${meta_activate}; then
 
-    while read -r line
-    do
-        smiles=$(echo "$line" | cut -d',' -f1)
-        smart=$(python3 $Script_Smiles2Smart $smiles)
-        new_smiles=$(python3 $Script_Smart2Smiles $smart)
+        #################
+        ### MetaTrans ###
+        #################
 
-        #if smiles already presents
-        if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
-            index=$(get_index $new_smiles)
-            metatrans_tab[${index}]="+"
+        echo "
+         ==============================================
+        ||                                            ||                                                         
+        ||   MetaTrans Results processing step 1/1    ||
+        ||                                            ||                                                       
+         ==============================================
+        "
 
-        #if smiles not present
-        else
-            smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-            formuleBrute_tab[${#formuleBrute_tab[@]}]=$(python3 $Script_FormulaFromSmiles $new_smiles)
-            mass_tab[${#mass_tab[@]}]=$(python3 $Script_massFromFormula $formulebrute)
-            index=$(get_index $new_smiles)
-            metatrans_tab[${index}]="+"
-        fi
-    done < "${tmp}${tab_molecule[${indice}]}_Metatrans.csv"
+        tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Metatrans.csv" | wc -l )
+        current_task=0
 
-    ######################
-    ### Meta-Predictor ###
-    ######################
-    if ${metapred_activate}; then
         while read -r line
         do
+            ((current_task+=1))
+            show_progress $current_task $tasks_in_total
+
+            smiles=$(echo "$line" | cut -d',' -f1)
+            smart=$(python3 $Script_Smiles2Smart $smiles)
+            new_smiles=$(python3 $Script_Smart2Smiles $smart)
+
+            #if smiles already presents
+            if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
+                index=$(get_index $new_smiles)
+                metatrans_tab[${index}]="+"
+
+            #if smiles not present
+            else
+                smiles_tab[${#smiles_tab[@]}]=${new_smiles}
+                formuleBrute_tab[${#formuleBrute_tab[@]}]=$(python3 $Script_FormulaFromSmiles $new_smiles)
+                mass_tab[${#mass_tab[@]}]=$(python3 $Script_massFromFormula $formulebrute)
+                index=$(get_index $new_smiles)
+                metatrans_tab[${index}]="+"
+            fi
+        done < "${tmp}${tab_molecule[${indice}]}_Metatrans.csv"
+
+        ######################
+        ### Meta-Predictor ###
+        ######################
+
+        echo "
+         =====================================================
+        ||                                                  ||                                                         
+        ||   Meta-Predictor Results processing step 1/1     ||
+        ||                                                  ||                                                       
+         =====================================================
+        "
+
+        tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_metapred.csv" | wc -l )
+        current_task=0
+
+        while read -r line
+        do
+            ((current_task+=1))
+            show_progress $current_task $tasks_in_total
+
             smiles=$(echo "$line" | cut -d',' -f2)
             smart=$(python3 $Script_Smiles2Smart $smiles)
             new_smiles=$(python3 $Script_Smart2Smiles $smart)
@@ -783,10 +871,11 @@ do
     echo "     
      =================================
     ||                               ||
-    ||     Structures realisation    ||
+    ||     Structures creation       ||
     ||                               ||
      =================================
     "
+
     python3 $Script_SmitoStr -i "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
     mkdir "${DirOutput}${tab_molecule[${indice}]}_figures"
     mv Molecule*.jpeg "${DirOutput}${tab_molecule[${indice}]}_figures"
