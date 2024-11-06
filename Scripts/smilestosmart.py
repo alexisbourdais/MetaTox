@@ -4,7 +4,7 @@ from rdkit import Chem
 
 def smiles2smart(smiles):
     m = Chem.MolFromSmiles(smiles)
-    sma = Chem.MolToSmarts(m, isomericSmiles=True).replace('#6', 'C').replace('#8', 'O').replace('#15', 'P').replace('#7', 'N')
+    sma = Chem.MolToSmarts(m, isomericSmiles=True).replace('#6', 'C').replace('#8', 'O').replace('#15', 'P').replace('#7', 'N').replace('#9', 'F')
     print(sma)
 
 if __name__ == "__main__":
