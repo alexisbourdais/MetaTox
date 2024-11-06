@@ -52,7 +52,7 @@ Due to hardware limitations, MetaTrans and Meta-Predictor may not function corre
                             superbio   : Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)
                             envimicro  : Environmental microbial
 
-        -n|--nstep      The number of steps for the prediction by BioTransformer [default=2]
+        -n|--nstep      The number of steps for the prediction by BioTransformer [default=1]
 
         -c|--cmode      CYP450 prediction Mode uses by BioTransformer: 
                             1  = CypReact+BioTransformer rules
