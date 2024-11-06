@@ -776,7 +776,7 @@ do
 
         echo -e "${formulebrute}\t${masse}\t${smiles}\t${sygma}\t${biotrans}\t${metatrans}\t${metapred}\t${pathway}\t${biotrans_pathway}\t${score}\t${biotrans_score}\t${biotrans_precur_for}\t${biotrans_precur_smiles}\t${biotrans_enzyme}\t${biotrans_system}\t${figure}" >> ${results_file}
         
-        echo -e "Molecule${nbmolecule},${smiles}" >> "${tmp}ListeSmile.txt"
+        echo -e "Molecule${nbmolecule},${smiles}" >> "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
     done
 
     ###Structure construction
@@ -787,7 +787,7 @@ do
     ||                               ||
      =================================
     "
-    python3 $Script_SmitoStr -i "${tmp}ListeSmile.txt"
+    python3 $Script_SmitoStr -i "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
     mkdir "${DirOutput}${tab_molecule[${indice}]}_figures"
     mv Molecule*.jpeg "${DirOutput}${tab_molecule[${indice}]}_figures"
 done
