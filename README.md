@@ -46,7 +46,7 @@ Due to hardware limitations, MetaTrans and Meta-Predictor may not function corre
         -m|--meta       To activate metaTrans and meta-Predictor [No]
 
         -t|--type       Type of biotransformation to use with BioTransformer3:
-                            [allHuman]  : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
+                            [allHuman] : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
                             ecbased    : Prediction of promiscuous metabolism (e.g. glycerolipid metabolism). EC-based metabolism is also called Enzyme Commission based metabolism
                             cyp450     : CYP450 metabolism prediction 
                             phaseII    : Prediction of major conjugative reactions, including glucuronidation, sulfation, glycine transfer, N-acetyl transfer, and glutathione transfer, among others 
