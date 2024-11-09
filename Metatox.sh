@@ -6,17 +6,17 @@
 
 help_msg() { 
     printf """
-                 ===============
-                ||             ||
-                ||   MetaTox   ||
-                ||             ||
-                 ===============
+                     ===============
+                    ||             ||
+                    ||   MetaTox   ||
+                    ||             ||
+                     ===============
 
- ==================================================
-||                                                 ||
-||   https://github.com/alexisbourdais/MetaTox/    ||
-||                                                 ||
- ==================================================
+     ==================================================
+    ||                                                 ||
+    ||   https://github.com/alexisbourdais/MetaTox/    ||
+    ||                                                 ||
+     ==================================================
 
 ####################
 ### Requirements ###
@@ -419,7 +419,7 @@ if ${meta_activate}; then
         MODEL_FILE='models/model_'$model_id'.pt'
         OUT_NAME='model'$model_id'_beam'$BEAM'.txt'
         OUT_FILE=$STORE$OUT_NAME
-        python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX 
+        python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX 2>&1 | tee -a "${tmp}MetaTrans_log.txt"
     done
 
     ### Step 3 : Get predictions
@@ -482,7 +482,7 @@ if ${meta_activate}; then
     cd ${DirMetapred}
 
     python prepare_input_file.py -input_file ${path_input} -output_file processed_data.txt
-    bash predict-top15.sh processed_data.txt ./prediction ${path_input}
+    bash predict-top15.sh processed_data.txt ./prediction ${path_input} 2>&1 | tee -a "${tmp}Metapredictor_log"
 
     conda deactivate
 
@@ -555,7 +555,7 @@ do
     -cm 3 \
     -s "${nstep}" \
     -ismi "${tab_smiles[${indice}]}" \
-    -ocsv "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv"
+    -ocsv "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv" 2>&1 | tee -a "${tmp}${tab_molecule[${indice}]}_Biotransformer3_log.txt"
 
     #Changement csv format
     csvformat -D ";" "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
@@ -609,7 +609,7 @@ do
         smart=$(python3 $Script_Smiles2Smart $smiles)
         new_smiles=$(python3 $Script_Smart2Smiles $smart)
         formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
-        #formulebrute=$(echo "$line" | cut -d',' -f2)
+        #formulebrute=$(echo "$line" | cut -d',' -f2) Not use to keep same format between tools
         score=$(echo "$line" | cut -d';' -f3)
         pathway=$(echo "$line" | cut -d';' -f4)
         enzyme=$(echo "$line" | cut -d';' -f5)
@@ -730,7 +730,7 @@ do
             score=$(echo "$line" | cut -d',' -f4)
             smart=$(python3 $Script_Smiles2Smart $smiles)
             new_smiles=$(python3 $Script_Smart2Smiles $smart)
-            
+
             #if smiles already presents
             if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
 
@@ -743,8 +743,16 @@ do
             else
                 smiles_tab[${#smiles_tab[@]}]=${new_smiles}
                 formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
-                formuleBrute_tab[${#formuleBrute_tab[@]}]=${formulebrute}
-                mass_tab[${#mass_tab[@]}]=$(python3 $Script_massFromFormula $formulebrute)
+
+                if [ -z "${formulebrute}" ]; then
+                    formulebrute="NA"
+                    formuleBrute_tab["${#formuleBrute_tab[@]}"]="${formulebrute}"
+                    mass_tab["${#mass_tab[@]}"]="NA"
+                else
+                    formuleBrute_tab[${#formuleBrute_tab[@]}]="${formulebrute}"
+                    mass_tab[${#mass_tab[@]}]="$(python3 $Script_massFromFormula $formulebrute)"
+                fi
+
                 index=$(get_index $new_smiles)
                 sygma_pathway_tab["${index}"]=${pathway}
                 sygma_score_tab["${index}"]=${score}
@@ -787,8 +795,17 @@ do
             #if smiles not present
             else
                 smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-                formuleBrute_tab[${#formuleBrute_tab[@]}]=$(python3 $Script_FormulaFromSmiles $new_smiles)
-                mass_tab[${#mass_tab[@]}]=$(python3 $Script_massFromFormula $formulebrute)
+                formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
+
+                if [ -z "${formulebrute}" ]; then
+                    formulebrute="NA"
+                    formuleBrute_tab["${#formuleBrute_tab[@]}"]="${formulebrute}"
+                    mass_tab["${#mass_tab[@]}"]="NA"
+                else
+                    formuleBrute_tab[${#formuleBrute_tab[@]}]="${formulebrute}"
+                    mass_tab[${#mass_tab[@]}]="$(python3 $Script_massFromFormula $formulebrute)"
+                fi
+
                 index=$(get_index $new_smiles)
                 metatrans_tab[${index}]="+"
             fi
@@ -826,8 +843,17 @@ do
             #if smiles not present
             else
                 smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-                formuleBrute_tab[${#formuleBrute_tab[@]}]=$(python3 $Script_FormulaFromSmiles $new_smiles)
-                mass_tab[${#mass_tab[@]}]=$(python3 $Script_massFromFormula $formulebrute)
+                formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
+
+                if [ -z "${formulebrute}" ]; then
+                    formulebrute="NA"
+                    formuleBrute_tab["${#formuleBrute_tab[@]}"]="${formulebrute}"
+                    mass_tab["${#mass_tab[@]}"]="NA"
+                else
+                    formuleBrute_tab[${#formuleBrute_tab[@]}]="${formulebrute}"
+                    mass_tab[${#mass_tab[@]}]="$(python3 $Script_massFromFormula $formulebrute)"
+                fi
+
                 index=$(get_index $new_smiles)
                 metapred_tab[${index}]="+"
             fi
@@ -839,14 +865,14 @@ do
     ###################
 
     echo "     
-     =================================
-    ||                               ||
-    ||      Results Compilation      ||
-    ||                               ||
-     =================================
+         =================================
+        ||                               ||
+        ||      Results Compilation      ||
+        ||                               ||
+         =================================
     "
     # Entete
-    echo -e "FormuleBrute\tMasse(+H)\tSmiles\tSygma\tBioTransformers3\tMetaTrans\tMetaPredictor\tSygma_pathway\tBioTrans_pathway\tSygma_score\tBioTrans_score\tBioTrans_precursor\tBioTrans_precursor\tBioTrans_enzyme\tBioTrans_system\tFigure" > ${results_file}
+    echo -e "FormuleBrute\tMasse(+H)\tSmiles\tSygma\tBioTransformer3\tMetaTrans\tMetaPredictor\tSygma_pathway\tBioTrans_pathway\tSygma_score\tBioTrans_score\tBioTrans_precursor\tBioTrans_precursor\tBioTrans_enzyme\tBioTrans_system\tFigure" > ${results_file}
 
     #Progress tool
     tasks_in_total=$( echo ${#smiles_tab[@]} )
@@ -858,8 +884,6 @@ do
     do
         ((current_task+=1))
         show_progress $current_task $tasks_in_total
-
-        ((nbmolecule+=1))
 
         smiles="${smiles_tab[${indice2}]}"
         formulebrute="${formuleBrute_tab[${indice2}]}"
@@ -880,20 +904,24 @@ do
         biotrans_precur_for="${biotrans_precursor_formule_tab[${indice2}]}"
         biotrans_precur_smiles="${biotrans_precursor_smile_tab[${indice2}]}"
 
-        figure="Figure_${nbmolecule}"
-
-        echo -e "${formulebrute}\t${masse}\t${smiles}\t${sygma}\t${biotrans}\t${metatrans}\t${metapred}\t${pathway}\t${biotrans_pathway}\t${score}\t${biotrans_score}\t${biotrans_precur_for}\t${biotrans_precur_smiles}\t${biotrans_enzyme}\t${biotrans_system}\t${figure}" >> ${results_file}
-        
-        echo -e "Molecule${nbmolecule},${smiles}" >> "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
+        if [ "${formulebrute}" == "NA" ]; then
+            figure="NA"
+            echo -e "${formulebrute}\t${masse}\t${smiles}\t${sygma}\t${biotrans}\t${metatrans}\t${metapred}\t${pathway}\t${biotrans_pathway}\t${score}\t${biotrans_score}\t${biotrans_precur_for}\t${biotrans_precur_smiles}\t${biotrans_enzyme}\t${biotrans_system}\t${figure}" >> ${results_file}
+        else
+            ((nbmolecule+=1))
+            figure="Figure_${nbmolecule}"
+            echo -e "${formulebrute}\t${masse}\t${smiles}\t${sygma}\t${biotrans}\t${metatrans}\t${metapred}\t${pathway}\t${biotrans_pathway}\t${score}\t${biotrans_score}\t${biotrans_precur_for}\t${biotrans_precur_smiles}\t${biotrans_enzyme}\t${biotrans_system}\t${figure}" >> ${results_file}
+            echo -e "Molecule${nbmolecule},${smiles}" >> "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
+        fi 
     done
 
     ###Structure construction
     echo "     
-     =================================
-    ||                               ||
-    ||     Structures creation       ||
-    ||                               ||
-     =================================
+         =================================
+        ||                               ||
+        ||     Structures creation       ||
+        ||                               ||
+         =================================
     "
 
     python3 $Script_SmitoStr -i "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
