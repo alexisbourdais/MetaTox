@@ -10,6 +10,8 @@ Biotransformer and Sygma are used via singularity, Meta-Trans & Meta-Predictor n
 
 As this project was designed for non-bioinformaticians, a graphical interface via zenity was included (optional).
 
+This project has been tested and run on linux and WSL.
+
 Due to hardware limitations, MetaTrans and Meta-Predictor may not function correctly. Their use is therefore disabled by default.
 
 ## Quick start
