@@ -515,7 +515,7 @@ fi
 
 for indice in ${!tab_molecule[@]}
 do
-    results_file="${DirOutput}${tab_molecule[${indice}]}_CompileResults.csv"
+    results_file="${DirOutput}${tab_molecule[${indice}]}_CompileResults.tsv"
 
     # Reset table
     smiles_tab=()
