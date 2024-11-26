@@ -192,7 +192,7 @@ if [ -z $input ]; then
         nstep=$(echo "$option_biotrans" | cut -d "," -f1)
         cmode=$(echo "$option_biotrans" | cut -d "," -f2)
 
-    zenity --question --title="Meta-Predictor Activation" --text="Do you want to activate MetaTrans and Meta-Predictor ?"
+    zenity --question --title="Meta-Predictor/Meta-Trans Activation" --text="Do you want to activate MetaTrans and Meta-Predictor ?"
     metapred_activate_answer=$?
     if [ $metapred_activate_answer -eq 0 ]; then
 	    meta_activate=true
