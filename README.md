@@ -24,7 +24,7 @@ Due to hardware limitations, MetaTrans and Meta-Predictor may not function corre
   
   `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh; chmod +x Miniconda3-latest-Linux-x86_64.sh; ./Miniconda3-latest-Linux-x86_64.sh`
 - Necessary for metatrans conda env install : `conda config --set channel_priority flexible`
-- Some packages needed : `sudo apt install zenity bc gawk dos2unix csvkit`
+- Some packages needed : `sudo apt install zenity gawk dos2unix csvkit`
 
 ### Download project, MetaTrans-MetaPredictor directory and configure them: 
 
@@ -77,8 +77,6 @@ SyGMa : https://github.com/3D-e-Chem/sygma
 MetaTrans : https://github.com/KavrakiLab/MetaTrans
 
 Meta-Predictor : https://github.com/zhukeyun/Meta-Predictor/tree/main
-
-SdftoSmi & SmitoStr scripts : https://github.com/MunibaFaiza/cheminformatics/tree/main
 
 ## Citation
 
