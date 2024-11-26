@@ -26,13 +26,12 @@ help_msg() {
     sudo apt-get install -y singularity-container
 
 - Conda :
-    mkdir -p ~/miniconda3
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-    bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-    rm ~/miniconda3/miniconda.sh
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    chmod +x Miniconda3-latest-Linux-x86_64.sh
+    ./Miniconda3-latest-Linux-x86_64.sh
 
 - Some packages :
-    sudo apt install -y zenity bc gawk dos2unix
+    sudo apt install -y zenity gawk dos2unix csvkit
 
 - If error when creating metatrans conda environment, run before using MetaTox : conda config --set channel_priority flexible
 
@@ -47,7 +46,6 @@ help_msg() {
 Example:
 
 Nicotine,CN1CCC[C@H]1c2cccnc2
-
 
 ##################
 ###    Usage   ### 
@@ -66,7 +64,7 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
         -m|--meta      To activate metaTrans and meta-Predictor [No]
 
         -t|--type       Type of biotransformation to use with BioTransformer3:
-                            [allHuman]  : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
+                            [allHuman] : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
                             ecbased    : Prediction of promiscuous metabolism (e.g. glycerolipid metabolism). EC-based metabolism is also called Enzyme Commission based metabolism
                             cyp450     : CYP450 metabolism prediction 
                             phaseII    : Prediction of major conjugative reactions, including glucuronidation, sulfation, glycine transfer, N-acetyl transfer, and glutathione transfer, among others 
@@ -136,49 +134,6 @@ while [ $# -gt 0 ] ; do
     esac
 done
 
-#####################
-### Progress Tool ###
-#####################
-
-bar_size=40
-bar_char_done="#"
-bar_char_todo="-"
-bar_percentage_scale=2
-
-function show_progress {
-    current="$1"
-    total="$2"
-
-    # calculate the progress in percentage 
-    percent=$(bc <<< "scale=$bar_percentage_scale; 100 * $current / $total" )
-    # The number of done and todo characters
-    done=$(bc <<< "scale=0; $bar_size * $percent / 100" )
-    todo=$(bc <<< "scale=0; $bar_size - $done" )
-
-    # build the done and todo sub-bars
-    done_sub_bar=$(printf "%${done}s" | tr " " "${bar_char_done}")
-    todo_sub_bar=$(printf "%${todo}s" | tr " " "${bar_char_todo}")
-
-    # output the bar
-    echo -ne "\rProgress : [${done_sub_bar}${todo_sub_bar}] ${percent}%"
-
-    if [ $total -eq $current ]; then
-        echo -e "\nDONE"
-    fi
-}
-
-############################
-###     Index Function   ###
-############################
-
-function get_index() {
-for i in "${!smiles_tab[@]}"; do
-   if [[ "${smiles_tab[$i]}" = "${1}" ]]; then
-       echo "${i}";
-   fi
-done
-}
-
 ######################
 ### Work Directory ###
 ######################
@@ -201,12 +156,8 @@ DirMetapred="${work_dir}/Meta-Predictor/"
 DirCondaEnv="${work_dir}/CondaEnv/"
 DirScripts="${work_dir}/Scripts/"
 
-Script_Smiles2Smart="${DirScripts}smilestosmart.py"
-Script_Smart2Smiles="${DirScripts}smarttosmiles.py"
-Script_SdftoSmi="${DirScripts}sdftosmi.py"
+Script_Metatox_companion="${DirScripts}metatox_compagnion.py"
 Script_SmitoStr="${DirScripts}smitostr.py"
-Script_FormulaFromSmiles="${DirScripts}formulafromsmiles.py"
-Script_massFromFormula="${DirScripts}massFromFormula.py"
 
 ##############
 ### Zenity ###
@@ -336,24 +287,26 @@ echo "
 #########################
 
 eval "$(conda shell.bash hook)"
-#conda init --all
 
 if conda info --envs | grep -q rdkit; then 
-    echo "Conda environment "rdkit" already exists"
-else 
+    :
+else
+    echo "Installation of "rdkit" environment :"
     conda env create --name rdkit --file ${DirCondaEnv}rdkit_environment.yml
 fi
 
 if $meta_activate; then
     if conda info --envs | grep -q metapredictor; then 
-        echo "Conda environment "metapredictor" already exists"
+        :
     else 
+        echo "Installation of "metapredictor" environment :"
         conda env create --name metapredictor --file ${DirCondaEnv}metapred_environment.yml
     fi
 
     if conda info --envs | grep -q metatrans; then 
-        echo "Conda environment "metatrans" already exists"
-    else 
+        :
+    else
+        echo "Installation of "metatrans" environment :"
         conda env create --name metatrans --file ${DirCondaEnv}metatrans_environment.yml
     fi
 fi
@@ -394,7 +347,6 @@ if ${meta_activate}; then
     STORE=predictions/  #directory for output process
     mkdir $STORE
 
-    ### Step 1 : Prepare data
     echo "
      ==================================================
     ||                                                ||
@@ -405,7 +357,6 @@ if ${meta_activate}; then
 
     python prepare_input_file.py -input_file "${path_input}" -output_file ${outfile}
 
-    ### Step 2 : Translate
     echo "
      ==================================================
     ||                                                ||
@@ -419,10 +370,9 @@ if ${meta_activate}; then
         MODEL_FILE='models/model_'$model_id'.pt'
         OUT_NAME='model'$model_id'_beam'$BEAM'.txt'
         OUT_FILE=$STORE$OUT_NAME
-        python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX 2>&1 | tee -a "${tmp}MetaTrans_log.txt"
+        python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX > "${tmp}MetaTrans_log.txt" 2>&1
     done
 
-    ### Step 3 : Get predictions
     echo "
      ========================================================
     ||                                                      ||
@@ -435,7 +385,8 @@ if ${meta_activate}; then
     -input_file "${path_input}" \
     -output_file ${results} \
     -beam_size ${BEAM} \
-    -visualise_molecules True
+    -visualise_molecules True \
+    >> "${tmp}MetaTrans_log.txt" 2>&1
 
     conda deactivate
 
@@ -457,9 +408,7 @@ if ${meta_activate}; then
             #SmileParent=$(echo $a | cut -d\, -f2)
             SmileMetabo=$(echo $a | cut -d\, -f3)
             read -ra tab_metabo <<< "$SmileMetabo"
-            #n_metabo=0
             for i in ${tab_metabo[@]}; do
-                #((n_metabo+=1))
                 echo "${i}" >> "${MoleculeID}_Metatrans.csv"
             done
         fi
@@ -482,7 +431,7 @@ if ${meta_activate}; then
     cd ${DirMetapred}
 
     python prepare_input_file.py -input_file ${path_input} -output_file processed_data.txt
-    bash predict-top15.sh processed_data.txt ./prediction ${path_input} 2>&1 | tee -a "${tmp}Metapredictor_log"
+    bash predict-top15.sh processed_data.txt ./prediction ${path_input} > "${tmp}Metapredictor_log" 2>&1
 
     conda deactivate
 
@@ -501,12 +450,9 @@ if ${meta_activate}; then
 
         else
             MoleculeID=$(echo $a | cut -d\, -f1)
-            #SmileParent=$(echo $a | cut -d\, -f2)
             SmileMetabo=$(echo $a | cut -d\, -f3)
             read -ra tab_metabo <<< "$SmileMetabo"
-            #n_metabo=0
             for i in ${tab_metabo[@]}; do
-                #((n_metabo+=1))
                 echo "${i}" >> "${MoleculeID}_metapred.csv"
             done
         fi
@@ -516,34 +462,19 @@ fi
 for indice in ${!tab_molecule[@]}
 do
     results_file="${DirOutput}${tab_molecule[${indice}]}_CompileResults.tsv"
-
-    # Reset table
-    smiles_tab=()
-    formuleBrute_tab=()
-    mass_tab=()
-    biotrans_tab=()
-    biotrans_score_tab=()
-    biotrans_pathway_tab=()
-    biotrans_enzyme_tab=()
-    biotrans_system_tab=()
-    biotrans_precursor_formule_tab=()
-    biotrans_precursor_smile_tab=()
-    sygma_pathway_tab=()
-    sygma_score_tab=()
-    sygma_tab=()
-    metapred_tab=()
-    metatrans_tab=()
+    results_figure="${DirOutput}${tab_molecule[${indice}]}_figures/"
+    mkdir ${results_figure}
 
     #########################
     ### BIOTRANSFORMERS 3 ###
     #########################
 
     echo "
-     ===============================================================================================================
+     ===============================================================
     ||                                                                                           
-    ||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Biotransformer3
+    ||   Process of ${tab_molecule[${indice}]} by Biotransformer3
     ||                                                                                            
-     ===============================================================================================================
+     ===============================================================
     "
     #Download version
     #java -jar BioTransformer3.0_20230525.jar -b ${type} -k pred -cm 3 -ismi "${smile}" -ocsv "${DirOutput}${molecule}_Biotransformer3.csv"
@@ -559,374 +490,46 @@ do
 
     #Changement csv format
     csvformat -D ";" "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
-    
-    echo "
-     ===================================================
-    ||                                                 ||                                                         
-    ||   BioTransformer Results processing step 1/2    ||
-    ||                                                 ||                                                       
-     ===================================================
-    "
-
-    #Keep informative column
-    pat_bioTrans="^InChI;InChIKey*"
-
-    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv" | wc -l )
-    current_task=0
-
-    while read line
-    do
-        ((current_task+=1))
-        show_progress $current_task $tasks_in_total
-
-        if [[ $line =~ $pat_bioTrans ]]; then
-            :
-        else
-            info=$(echo $line | cut -d\; -f3,6,8,14,16,17,19)
-            echo "${info}" >> ${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv
-        fi
-    done < "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv"
-
-    echo "
-     ===================================================
-    ||                                                 ||                                                         
-    ||   BioTransformer Results processing step 2/2    ||
-    ||                                                 ||                                                       
-     ===================================================
-    "
-
-    conda activate rdkit
-
-    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv" | wc -l )
-    current_task=0
-
-    while read line
-    do
-        ((current_task+=1))
-        show_progress $current_task $tasks_in_total
-
-        smiles=$(echo "$line" | cut -d';' -f1)
-        smart=$(python3 $Script_Smiles2Smart $smiles)
-        new_smiles=$(python3 $Script_Smart2Smiles $smart)
-        formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
-        #formulebrute=$(echo "$line" | cut -d',' -f2) Not use to keep same format between tools
-        score=$(echo "$line" | cut -d';' -f3)
-        pathway=$(echo "$line" | cut -d';' -f4)
-        enzyme=$(echo "$line" | cut -d';' -f5)
-        system=$(echo "$line" | cut -d';' -f6)
-        smiles_precursor=$(echo "$line" | cut -d';' -f7)
-        smart_precursor=$(python3 $Script_Smiles2Smart $smiles_precursor)
-        new_smiles_precursor=$(python3 $Script_Smart2Smiles $smart_precursor)
-
-        #if smiles already presents
-        if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
-            index=$(get_index $new_smiles)
-            biotrans_tab["${index}"]="+"
-            biotrans_score_tab["${index}"]=${score}
-            biotrans_pathway_tab["${index}"]=${pathway}
-            biotrans_enzyme_tab["${index}"]=${enzyme}
-            biotrans_system_tab["${index}"]=${system}
-            biotrans_precursor_smile_tab["${index}"]=${new_smiles_precursor}
-            biotrans_precursor_formule_tab["${index}"]=$(python3 $Script_FormulaFromSmiles $new_smiles_precursor)
-
-        #if smiles not present
-        else
-            smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-            formuleBrute_tab[${#formuleBrute_tab[@]}]=${formulebrute}
-            mass_tab[${#mass_tab[@]}]=$(python3 $Script_massFromFormula $formulebrute)
-            index=$(get_index $new_smiles)
-            biotrans_tab["${index}"]="+"
-            biotrans_score_tab["${index}"]=${score}
-            biotrans_pathway_tab["${index}"]=${pathway}
-            biotrans_enzyme_tab["${index}"]=${enzyme}
-            biotrans_system_tab["${index}"]=${system}
-            biotrans_precursor_smile_tab["${index}"]=${new_smiles_precursor}
-            biotrans_precursor_formule_tab["${index}"]=$(python3 $Script_FormulaFromSmiles $new_smiles_precursor)
-        fi
-    done < "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut2.csv"
 
     ##################
     ###    SygMa   ###
     ##################
 
     echo "
-     =========================================================================================================
+     ====================================================
     ||                                         
-    ||   Process of ${tab_molecule[${indice}]} : ${tab_smiles[${indice}]} by Sygma
+    ||   Process of ${tab_molecule[${indice}]} by Sygma
     ||                                             
-     =========================================================================================================
+     ====================================================
     "
-
-    pat_pathway="^>  <Pathway>"
-    pat_score="^>  <Score>"
 
     singularity run docker://3dechem/sygma ${tab_smiles[${indice}]} -1 $phase1 -2 $phase2 >> "${tmp}${tab_molecule[${indice}]}_Sygma.sdf"
-
-    ###Converting the sdf into smiles
-    python3 ${Script_SdftoSmi} ${tmp}${tab_molecule[${indice}]}_Sygma.sdf
-    mv ${PWD}/smiles.txt ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_smiles.txt
-
-    echo "
-     ==========================================
-    ||                                        ||                                                         
-    ||   SygMa Results processing step 1/2    ||
-    ||                                        ||                                                       
-     ==========================================
-    "
-
-    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Sygma.sdf" | wc -l )
-    current_task=0
-
-    #Adding scores & pathways from the sdf file to the txt file
-    while read line
-    do
-        ((current_task+=1))
-        show_progress $current_task $tasks_in_total
-
-        if [[ $line_pre == "pathway" ]]; then
-            echo $line | sed 's/,/;/g' >> "${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Path.txt"
-            line_pre=""
-        fi
-
-        if [[ $line_pre == "score" ]]; then
-            echo $line >> "${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Score.txt"
-            line_pre=""
-        fi
-
-        if [[ $line =~ $pat_pathway ]]; then
-            line_pre=pathway
-        fi
-
-        if [[ $line =~ $pat_score ]]; then
-            line_pre=score
-        fi
-    done < "${tmp}${tab_molecule[${indice}]}_Sygma.sdf"
-
-    paste -d ',' ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_smiles.txt ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Path.txt ${tmp}Prediction_sygma_${tab_molecule[${indice}]}_Score.txt > ${tmp}${tab_molecule[${indice}]}_Sygma_SmilesPathScore.txt
-
-    echo "
-     ==========================================
-    ||                                        ||                                                         
-    ||   SygMa Results processing step 2/2    ||
-    ||                                        ||                                                       
-     ==========================================
-    "
-
-    tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Sygma_SmilesPathScore.txt" | wc -l )
-    current_task=0
-
-    pat_parent="^Molecule1"
-
-    while read -r line
-    do
-        ((current_task+=1))
-        show_progress $current_task $tasks_in_total
-
-        if [[ $line =~ $pat_parent ]]; then
-            :
-        else
-            smiles=$(echo "$line" | cut -d',' -f2)
-            pathway=$(echo "$line" | cut -d',' -f3)
-            score=$(echo "$line" | cut -d',' -f4)
-            smart=$(python3 $Script_Smiles2Smart $smiles)
-            new_smiles=$(python3 $Script_Smart2Smiles $smart)
-
-            #if smiles already presents
-            if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
-
-                index=$(get_index $new_smiles)
-                sygma_pathway_tab["${index}"]=${pathway}
-                sygma_score_tab["${index}"]=${score}
-                sygma_tab["${index}"]="+"
-            
-            #if smiles not present
-            else
-                smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-                formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
-
-                if [ -z "${formulebrute}" ]; then
-                    formulebrute="NA"
-                    formuleBrute_tab["${#formuleBrute_tab[@]}"]="${formulebrute}"
-                    mass_tab["${#mass_tab[@]}"]="NA"
-                else
-                    formuleBrute_tab[${#formuleBrute_tab[@]}]="${formulebrute}"
-                    mass_tab[${#mass_tab[@]}]="$(python3 $Script_massFromFormula $formulebrute)"
-                fi
-
-                index=$(get_index $new_smiles)
-                sygma_pathway_tab["${index}"]=${pathway}
-                sygma_score_tab["${index}"]=${score}
-                sygma_tab["${index}"]="+"
-            fi
-        fi
-    done < "${tmp}${tab_molecule[${indice}]}_Sygma_SmilesPathScore.txt"
-
-    if ${meta_activate}; then
-
-        #################
-        ### MetaTrans ###
-        #################
-
-        echo "
-         ==============================================
-        ||                                            ||                                                         
-        ||   MetaTrans Results processing step 1/1    ||
-        ||                                            ||                                                       
-         ==============================================
-        "
-
-        tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_Metatrans.csv" | wc -l )
-        current_task=0
-
-        while read -r line
-        do
-            ((current_task+=1))
-            show_progress $current_task $tasks_in_total
-
-            smiles=$(echo "$line" | cut -d',' -f1)
-            smart=$(python3 $Script_Smiles2Smart $smiles)
-            new_smiles=$(python3 $Script_Smart2Smiles $smart)
-
-            #if smiles already presents
-            if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
-                index=$(get_index $new_smiles)
-                metatrans_tab[${index}]="+"
-
-            #if smiles not present
-            else
-                smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-                formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
-
-                if [ -z "${formulebrute}" ]; then
-                    formulebrute="NA"
-                    formuleBrute_tab["${#formuleBrute_tab[@]}"]="${formulebrute}"
-                    mass_tab["${#mass_tab[@]}"]="NA"
-                else
-                    formuleBrute_tab[${#formuleBrute_tab[@]}]="${formulebrute}"
-                    mass_tab[${#mass_tab[@]}]="$(python3 $Script_massFromFormula $formulebrute)"
-                fi
-
-                index=$(get_index $new_smiles)
-                metatrans_tab[${index}]="+"
-            fi
-        done < "${tmp}${tab_molecule[${indice}]}_Metatrans.csv"
-
-        ######################
-        ### Meta-Predictor ###
-        ######################
-
-        echo "
-         =====================================================
-        ||                                                  ||                                                         
-        ||   Meta-Predictor Results processing step 1/1     ||
-        ||                                                  ||                                                       
-         =====================================================
-        "
-
-        tasks_in_total=$( nl "${tmp}${tab_molecule[${indice}]}_metapred.csv" | wc -l )
-        current_task=0
-
-        while read -r line
-        do
-            ((current_task+=1))
-            show_progress $current_task $tasks_in_total
-
-            smiles=$(echo "$line" | cut -d',' -f2)
-            smart=$(python3 $Script_Smiles2Smart $smiles)
-            new_smiles=$(python3 $Script_Smart2Smiles $smart)
-
-            #if smiles already presents
-            if [[ $(echo ${smiles_tab[@]} | fgrep -w $new_smiles) ]]; then
-                index=$(get_index $new_smiles)
-                metapred_tab[${index}]="+"
-
-            #if smiles not present
-            else
-                smiles_tab[${#smiles_tab[@]}]=${new_smiles}
-                formulebrute=$(python3 $Script_FormulaFromSmiles $new_smiles)
-
-                if [ -z "${formulebrute}" ]; then
-                    formulebrute="NA"
-                    formuleBrute_tab["${#formuleBrute_tab[@]}"]="${formulebrute}"
-                    mass_tab["${#mass_tab[@]}"]="NA"
-                else
-                    formuleBrute_tab[${#formuleBrute_tab[@]}]="${formulebrute}"
-                    mass_tab[${#mass_tab[@]}]="$(python3 $Script_massFromFormula $formulebrute)"
-                fi
-
-                index=$(get_index $new_smiles)
-                metapred_tab[${index}]="+"
-            fi
-        done < "${tmp}${tab_molecule[${indice}]}_metapred.csv"
-    fi
 
     ###################
     ### Compilation ###
     ###################
 
     echo "     
-         =================================
-        ||                               ||
-        ||      Results Compilation      ||
-        ||                               ||
-         =================================
-    "
-    # Entete
-    echo -e "FormuleBrute\tMasse(+H)\tSmiles\tSygma\tBioTransformer3\tMetaTrans\tMetaPredictor\tSygma_pathway\tBioTrans_pathway\tSygma_score\tBioTrans_score\tBioTrans_precursor\tBioTrans_precursor\tBioTrans_enzyme\tBioTrans_system\tFigure" > ${results_file}
-
-    #Progress tool
-    tasks_in_total=$( echo ${#smiles_tab[@]} )
-    current_task=0
-
-    nbmolecule=0
-
-    for indice2 in ${!smiles_tab[@]}
-    do
-        ((current_task+=1))
-        show_progress $current_task $tasks_in_total
-
-        smiles="${smiles_tab[${indice2}]}"
-        formulebrute="${formuleBrute_tab[${indice2}]}"
-        masse="${mass_tab[${indice2}]}"
-
-        sygma="${sygma_tab[${indice2}]}"
-        score="${sygma_score_tab[${indice2}]}"
-        pathway="${sygma_pathway_tab[${indice2}]}"
-
-        metapred="${metapred_tab[${indice2}]}"
-        metatrans="${metatrans_tab[${indice2}]}"
-        
-        biotrans="${biotrans_tab[${indice2}]}"
-        biotrans_pathway="${biotrans_pathway_tab[${indice2}]}"
-        biotrans_enzyme="${biotrans_enzyme_tab[${indice2}]}"
-        biotrans_system="${biotrans_system_tab[${indice2}]}"
-        biotrans_score="${biotrans_score_tab[${indice2}]}"
-        biotrans_precur_for="${biotrans_precursor_formule_tab[${indice2}]}"
-        biotrans_precur_smiles="${biotrans_precursor_smile_tab[${indice2}]}"
-
-        if [ "${formulebrute}" == "NA" ]; then
-            figure="NA"
-            echo -e "${formulebrute}\t${masse}\t${smiles}\t${sygma}\t${biotrans}\t${metatrans}\t${metapred}\t${pathway}\t${biotrans_pathway}\t${score}\t${biotrans_score}\t${biotrans_precur_for}\t${biotrans_precur_smiles}\t${biotrans_enzyme}\t${biotrans_system}\t${figure}" >> ${results_file}
-        else
-            ((nbmolecule+=1))
-            figure="Figure_${nbmolecule}"
-            echo -e "${formulebrute}\t${masse}\t${smiles}\t${sygma}\t${biotrans}\t${metatrans}\t${metapred}\t${pathway}\t${biotrans_pathway}\t${score}\t${biotrans_score}\t${biotrans_precur_for}\t${biotrans_precur_smiles}\t${biotrans_enzyme}\t${biotrans_system}\t${figure}" >> ${results_file}
-            echo -e "Molecule${nbmolecule},${smiles}" >> "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
-        fi 
-    done
-
-    ###Structure construction
-    echo "     
-         =================================
-        ||                               ||
-        ||     Structures creation       ||
-        ||                               ||
-         =================================
+     =================================
+    ||                               ||
+    ||      Results Compilation      ||
+    ||                               ||
+     =================================
     "
 
-    python3 $Script_SmitoStr -i "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt"
-    mkdir "${DirOutput}${tab_molecule[${indice}]}_figures"
-    mv Molecule*.jpeg "${DirOutput}${tab_molecule[${indice}]}_figures"
+    conda activate rdkit
+
+    python3 $Script_Metatox_companion \
+    --biotrans "${tmp}${tab_molecule[${indice}]}_Biotransformer3_brut.csv" \
+    --sygma "${tmp}${tab_molecule[${indice}]}_Sygma.sdf" \
+    --metapred "${tmp}${tab_molecule[${indice}]}_metapred.csv" \
+    --metatrans "${tmp}${tab_molecule[${indice}]}_Metatrans.csv" \
+    --output "${results_file}" \
+    --figure "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt" \
+    --dirfig "${results_figure}" \
+    > "${tmp}${tab_molecule[${indice}]}_Compagnion_log.txt" 2>&1
+
+    conda deactivate
 done
 
 if ${keep_tmp}; then
