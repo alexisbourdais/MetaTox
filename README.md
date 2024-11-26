@@ -1,4 +1,4 @@
-# Metabolite prediction for toxicology
+# Metabolites prediction for toxicology
 
 ![screenshot](Images/MetaTox.png)
 
