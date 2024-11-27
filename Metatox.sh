@@ -157,8 +157,6 @@ DirCondaEnv="${work_dir}/CondaEnv/"
 DirScripts="${work_dir}/Scripts/"
 
 Script_Metatox_companion="${DirScripts}metatox_compagnion.py"
-Script_SmitoStr="${DirScripts}smitostr.py"
-
 ##############
 ### Zenity ###
 ##############
