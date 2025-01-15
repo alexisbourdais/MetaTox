@@ -88,3 +88,9 @@ SyGMa : Ridder, L. & Wagener, M. SyGMa: Combining Expert Knowledge and Empirical
 MetaTrans : Litsa, E. E., Das, P. & Kavraki, L. E. Prediction of drug metabolites using neural machine translation. Chem. Sci. 11, 12777–12788 (2020).
 
 MetaPredictor: in silico prediction of drug metabolites based on deep language models with prompt engineering
+
+## Publication
+
+Pelletier R, Bourdais A, Fabresse N, Ferron PJ, Morel I, Gicquel T, Le Daré B. In silico and in vitro metabolism studies of the new synthetic opiate AP-237 (bucinnazine) using bioinformatics tools. Arch Toxicol. 2024 Jan;98(1):165-179. doi: 10.1007/s00204-023-03617-x. Epub 2023 Oct 15. PMID: 37839054.
+
+Pelletier R, Le Daré B, Le Bouëdec D, Bourdais A, Ferron PJ, Morel I, Porée FH, Gicquel T. Identification, synthesis and quantification of eutylone consumption markers in a chemsex context. Arch Toxicol. 2024 Jan;98(1):151-158. doi: 10.1007/s00204-023-03615-z. Epub 2023 Oct 13. PMID: 37833490.
