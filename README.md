@@ -32,6 +32,7 @@ Due to hardware limitations, MetaTrans and Meta-Predictor may not function corre
 - download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/** (unarchived)
 
 ### Run
+- Input : Text file with the **molecule ID/name** in the 1st column and the **smile code** in the 2nd column, separated by a **comma**.
 - `./Metatox.sh` to activate zenity
 - `./Metatox.sh --input input_file` to skip zenity
 
