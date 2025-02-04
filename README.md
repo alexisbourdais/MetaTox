@@ -64,10 +64,10 @@ Due to hardware limitations, MetaTrans and Meta-Predictor may not function corre
                             2  = CyProduct only
                            [3] = CypReact+BioTransformer rules+CyProducts
                     
-        -1|--phase1     Number of reaction cycles Phase 1 by SygMa [defaut=1]
-        -2|--phase2     Number of reaction cycles Phase 2 by SygMa [defaut=1]
+        -1|--phase1     Number of reaction cycles Phase 1 by SygMa [default=1]
+        -2|--phase2     Number of reaction cycles Phase 2 by SygMa [default=1]
 
-        -p|--tmp        To keep intermediate files [No]
+        -p|--tmp        To keep intermediate files [No] (debugging)
 
 ## Documentation
 
