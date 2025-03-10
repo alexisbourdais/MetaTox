@@ -1,23 +1,19 @@
 # Metabolites prediction for toxicology
 
-**The purpose of this branch is simply to keep an old version for reference. See the main branch for the latest version**
+**The purpose of this branch is simply to keep an old version for reference. See the main branch for the latest version (https://github.com/alexisbourdais/MetaTox/tree/main)**
 
 ## Quick start
 
 ### Required packages:
-
-- **Singularity** (https://docs.sylabs.io/guides/3.0/user-guide/installation.html) :
-  `sudo apt-get install -y singularity-container`
-- **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) :
-  
-  `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh; chmod +x Miniconda3-latest-Linux-x86_64.sh; ./Miniconda3-latest-Linux-x86_64.sh`
+- **Docker**
+- **Conda**
+- **Java**
 - Necessary for metatrans conda env install : `conda config --set channel_priority flexible`
-- Some packages needed : `sudo apt install gawk dos2unix csvkit`
+- Some packages needed : `sudo apt install gawk dos2unix`
 
-### Download project, MetaTrans-MetaPredictor directory and configure them: 
-
-- `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/Tools; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git`
-- download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/** (unarchived)
+### Download this project, BioTransformer3 directory and MetaTrans directory: 
+- `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/Tools; git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git; git clone https://github.com/KavrakiLab/MetaTrans`
+- Download the MetaTrans models from https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTox/Tools/MetaTrans/models/** (unarchived)
 
 ### Run
 - Input : Text file with the **molecule ID or name** in the 1st column and the **smile code** in the 2nd column, separated by a **comma**.
@@ -25,7 +21,7 @@
 
 ## Parameters
 
-- `./Metatox.sh -h` to see available parameters when zenity was skipped
+- `./Prediction_Metabo.sh -h` to see available parameters
 
       REQUIRED parameter
 
@@ -43,9 +39,9 @@
                             superbio   : Runs a set number of transformation steps in a pre-defined order (e.g. deconjugation first, then Oxidation/reduction, etc.)
                             envimicro  : Environmental microbial
         MetaTrans
-        -b, --beam      Top métabolites [defaut = 5]
-        -m, --min       Taille minimum des métabolites (en SMILE) [defaut = 5]
-        -M, --max       Taille maximum des métabolites (en SMILE) [defaut = 120]
+        -b, --beam      Top metabolites [default = 5]
+        -m, --min       Minimum metabolite size [default = 5]
+        -M, --max       Maximum metabolite size [default = 120]
 
 ## Documentation
 
