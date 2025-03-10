@@ -12,7 +12,7 @@
 - Some packages needed : `sudo apt install gawk dos2unix`
 
 ### Download this project, BioTransformer3 directory and MetaTrans directory: 
-- `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/Tools; git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git; git clone https://github.com/KavrakiLab/MetaTrans`
+- `git clone https://github.com/alexisbourdais/MetaTox/tree/origin; cd MetaTox/Tools; git clone https://bitbucket.org/wishartlab/biotransformer3.0jar.git; git clone https://github.com/KavrakiLab/MetaTrans`
 - Download the MetaTrans models from https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTox/Tools/MetaTrans/models/** (unarchived)
 
 ### Run
