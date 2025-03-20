@@ -35,7 +35,7 @@ Due to hardware limitations, MetaTrans, Meta-Predictor and selenium may not func
 ### Run
 - Input : Text file with the **molecule ID/name** in the 1st column and the **smile code** in the 2nd column, separated by a **comma**.
 - `./Metatox.sh` to activate zenity
-- `./MetaTox.sh --input input_file --option` to skip zenity
+- `./MetaTox.sh --input input_file (--option)` to skip zenity
 
 ## Parameters
 
