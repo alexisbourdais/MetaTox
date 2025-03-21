@@ -6,13 +6,17 @@
 
 *In silico* prediction of a list of molecules whose SMILES code is provided by 5 software packages : **BioTransformer3**, **SyGMa**, **GLORYx**, **MetaTrans** and **Meta-Predictor**.
 
-Biotransformer and Sygma are used via **singularity**, Meta-Trans & Meta-Predictor need to clone their github. GLORYx is used thanks selenium.
+Biotransformer and Sygma are used via **singularity**. 
+Meta-Trans & Meta-Predictor need to clone their github and to create a conda environement. 
+GLORYx is used online thanks selenium via a conda environment.
+Singularity image downloads and conda environment creations are automated.
 
 As this project was designed for non-bioinformaticians, a graphical interface via zenity was included (optional).
 
-This project has been tested and run on **linux** and **windows (WSL2) (except selenium for now)**.
+This project has been tested and run on **linux** and **windows-WSL2** (except selenium, which has not yet been tested on wsl2 and zenity may not work on wsl2).
 
 Due to hardware limitations, MetaTrans, Meta-Predictor and selenium may not function correctly. Their use is therefore disabled by default.
+You can try running them and seeing the error logs to solve potential problems. Especially for Meta-predictor, which requires cuda drivers.
 
 ## Quick start
 
@@ -24,13 +28,12 @@ Due to hardware limitations, MetaTrans, Meta-Predictor and selenium may not func
 - **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) :
   `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh; chmod +x Miniconda3-latest-Linux-x86_64.sh; ./Miniconda3-latest-Linux-x86_64.sh`
 - May be necessary for metatrans conda env install : `conda config --set channel_priority flexible`
-- Some packages needed : (zenity is optional, gawk and dos2unix are often already installed by default)
-- `sudo apt install zenity gawk dos2unix`
+- Some packages needed : `sudo apt install zenity gawk dos2unix` (zenity is optional, gawk and dos2unix are often already installed by default)
 
 ### Clone MetaTox, MetaTrans, MetaPredictor directories and configure them: 
 
 - `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh Metatox.sh`
-- download the models in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/** (unarchived)
+- Download manually the models of Metatrans in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/** (unarchived)
 
 ### Run
 - Input : Text file with the **molecule ID/name** in the 1st column and the **smile code** in the 2nd column, separated by a **comma**.
@@ -43,7 +46,7 @@ Due to hardware limitations, MetaTrans, Meta-Predictor and selenium may not func
 
     REQUIRED parameter
 
-        -i|--input   
+        -i|--input      Input file
 
     OPTIONAL parameter
 
