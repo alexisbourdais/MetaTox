@@ -262,14 +262,14 @@ if os.path.isfile(args['metapred']):
 if os.path.isfile(args['gloryx']):
     gloryx = csv.reader(open(args['gloryx'], "r"), delimiter=',')
     for line in gloryx:
-        if "mol_id" in line:
+        if "metabolite_smiles" in line:
             continue
         else:
-            smiles = line[11]
+            smiles = line[0]
             smart=smiles2smart(smiles)
             new_smiles=smart2smile(smart)
-            score = line[9]
-            pathway = line[10]
+            score = line[1]
+            pathway = line[2]
             gloryx_dic.setdefault(new_smiles, "+")
             gloryx_score_dic.setdefault(new_smiles, score)
             gloryx_pathway_dic.setdefault(new_smiles, pathway)
@@ -296,7 +296,7 @@ figures_file=args['figure']
 dir_figures=args['dirfig']
 
 #Entete
-print("FormuleBrute\tMasse(+H)\tSmiles\tSygma\tBioTransformer3\tMetaTrans\tMetaPredictor\tGloryX\tSygma_pathway\tBioTrans_pathway\tGloryX_pathway\tSygma_score\tBioTrans_score\tGloryX_score\tBioTrans_precursor\tBioTrans_precursor\tBioTrans_enzyme\tBioTrans_system\tFigure", file=results_file)
+print("FormuleBrute\tMasse(+H)\tSmiles\tSygma\tBioTransformer3\tMetaTrans\tGloryX\tMetaPredictor\tSygma_pathway\tBioTrans_pathway\tGloryX_pathway\tSygma_score\tGloryX_score\tBioTrans_AlogP\tBioTrans_precursor\tBioTrans_precursor\tBioTrans_enzyme\tBioTrans_system\tFigure", file=results_file)
 
 #Count metabolites
 nbmolecule=0
@@ -328,7 +328,7 @@ for smiles in smiles_list:
         figure=f"Figure_{nbmolecule}"
         print(f"Molecule_{nbmolecule},{smiles}", file=open(figures_file, 'a'))
     
-    print(f"{formulebrute}\t{mass}\t{smiles}\t{sygma}\t{biotrans}\t{metatrans}\t{metapred}\t{gloryx}\t{sygma_pathway}\t{biotrans_pathway}\t{gloryx_pathway}\t{sygma_score}\t{biotrans_score}\t{gloryx_score}\t{biotrans_prec_for}\t{biotrans_prec_smiles}\t{biotrans_enzyme}\t{biotrans_system}\t{figure}".replace("None", ""), file=results_file)
+    print(f"{formulebrute}\t{mass}\t{smiles}\t{sygma}\t{biotrans}\t{metatrans}\t{gloryx}\t{metapred}\t{sygma_pathway}\t{biotrans_pathway}\t{gloryx_pathway}\t{sygma_score}\t{gloryx_score}\t{biotrans_score}\t{biotrans_prec_for}\t{biotrans_prec_smiles}\t{biotrans_enzyme}\t{biotrans_system}\t{figure}".replace("None", ""), file=results_file)
 
 #Figures creation
 smitostr(figures_file, dir_figures)

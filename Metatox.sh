@@ -22,8 +22,7 @@ help_msg() {
 ### Requirements ###
 ####################
 
-- Singularity:
-    sudo apt-get install -y singularity-container
+- Singularity
 
 - Conda :
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -32,8 +31,6 @@ help_msg() {
 
 - Some packages :
     sudo apt install -y zenity gawk dos2unix (zenity is optional, gawk and dos2unix are often already installed by default)
-
-- If error when creating metatrans conda environment, run before using MetaTox : conda config --set channel_priority flexible
 
 #####################
 ###   Input file  ###
@@ -53,7 +50,7 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
 
 * With zenity : ./MetaTox.sh
 
-* To skip zenity : ./MetaTox.sh --input input_file --option
+* To skip zenity : ./MetaTox.sh --input list_smile.txt [--option]
     
     REQUIRED parameter
 
@@ -64,10 +61,6 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
         -o|--outdir     Name of the output directory [Results_prediction]
 
         -p|--predictor  To activate meta-Predictor [No]
-
-        -t|--trans      To activate metaTrans [No]
-
-        -g|--glory      To activate gloryX [No]
 
         -b|--biotrans   Type of biotransformation to use with BioTransformer3:
                             [allHuman] : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
@@ -89,9 +82,9 @@ Nicotine,CN1CCC[C@H]1c2cccnc2
         -2|--phase2     Number of reaction cycles Phase 2 by SygMa [defaut=1]
 
         -m|--metabo     Metabolism phase for GloryX : 
-                          [All] = Both phase (1 & 2)
-                            1   = Phase 1 only
-                            2   = Phase 2 only
+                          [phase_1_and_2]
+                          phase_1
+                          phase_2
 
         -k|--tmp        To keep intermediate files [No] (debugging)
 
@@ -135,14 +128,6 @@ while [ $# -gt 0 ] ; do
             predictor_activate=true
             shift
             ;;
-        -t|--trans)
-            trans_activate=true
-            shift
-            ;;
-        -g|--glory)
-            glory_activate=true
-            shift
-            ;;
         -m|--metabo)
             phase_gloryx="$2"
             shift
@@ -163,6 +148,39 @@ while [ $# -gt 0 ] ; do
     esac
 done
 
+########################
+### Spinner Function ###
+########################
+
+spinner() {
+    local pid=$1
+    local msg=$2
+    local delay=0.1
+    local spinstr='|/-\'
+
+    while kill -0 $pid 2>/dev/null; do
+        local temp=${spinstr#?}
+        printf "\r%s [%c]  " "$msg" "$spinstr"
+        spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+    done
+
+    wait $pid 2>/dev/null
+    if [ $? -eq 0 ]; then
+        printf "\r%s done ✓    \n" "$msg"
+    else
+        printf "\r%s failed ✗   \n" "$msg"
+    fi
+}
+
+run_with_spinner() {
+    local msg=$1
+    shift
+    ( "$@" ) >/dev/null 2>&1 &
+    local pid=$!
+    spinner $pid "$msg"
+}
+
 ######################
 ### Work Directory ###
 ######################
@@ -182,15 +200,12 @@ else
     mkdir $log
 fi
 
-#For download version of biotransformer3
-#DirBiotrans="${work_dir}/biotransformer3.0jar/"
-DirMetatrans="${work_dir}/MetaTrans/"
-DirMetapred="${work_dir}/Meta-Predictor/"
 DirCondaEnv="${work_dir}/CondaEnv/"
-DirScripts="${work_dir}/Scripts/"
 
+DirScripts="${work_dir}/Scripts/"
 Script_Metatox_Companion="${DirScripts}metatox_compagnion.py"
-Script_Gloryx="${DirScripts}selenium_gloryx.py"
+
+DirMetapred="${work_dir}/Meta-Predictor/"
 
 ##############
 ### Zenity ###
@@ -234,25 +249,9 @@ if [ -z $input ]; then
     	predictor_activate=false
     fi
 
-    zenity --question --title="Meta-Trans Activation" --text="Do you want to activate MetaTrans ?"
-    trans_activate_answer=$?
-    if [ $trans_activate_answer -eq 0 ]; then
-	    trans_activate=true
-    else [ $trans_activate_answer -eq 1 ]
-    	trans_activate=false
-    fi
+    phase_gloryx=$(zenity --list --title="Metabolism phase for GloryX" --text="Choose the metabolism phase to use with GloryX" --column="Phase" --column="Description" \
+        phase_1_and_2 "Phase 1 and phase 2 metabolism" phase_1 "Phase 1 metabolism" phase_2 "Phase 2 metabolism")
 
-    zenity --question --title="GloryX Activation" --text="Do you want to activate GloryX ?"
-    glory_activate_answer=$?
-    if [ $glory_activate_answer -eq 0 ]; then
-	    glory_activate=true
-
-        phase_gloryx=$(zenity --list --title="Metabolism phase for GloryX" --text="Choose the metabolism phase to use with GloryX" --column="Phase" --column="Description" \
-        All "Phase 1 and phase 2 metabolism" 1 "Phase 1 metabolism" 2 "Phase 2 metabolism")
-
-    else [ $glory_activate_answer -eq 1 ]
-    	glory_activate=false
-    fi
 fi
 
 #######################
@@ -318,27 +317,14 @@ if [ -z $phase2 ] || [[ ! $phase2 = +([0-9]) ]]; then
 fi
 
 ###Meta-Predictor option
-#Activation
-if [ -z $trans_activate ]; then
-	trans_activate=false
-fi
-
-###MetaTrans option
-#Activation
 if [ -z $predictor_activate ]; then
 	predictor_activate=false
 fi
 
-###GloryX options
-#Acivation
-if [ -z $glory_activate ]; then
-	glory_activate=false
-fi
-
+###GloryX option
 #Metabolism phase for gloryX
-
-if [ -z "$phase_gloryx" ] || ([ "$phase_gloryx" != "1" ] && [ "$phase_gloryx" != "2" ] && [ "$phase_gloryx" != "All" ]); then
-	phase_gloryx="All"
+if [ -z "$phase_gloryx" ] || ([ "$phase_gloryx" != "phase_1" ] && [ "$phase_gloryx" != "phase_2" ] && [ "$phase_gloryx" != "phase_1_and_2" ]); then
+	phase_gloryx="phase_1_and_2"
 fi
 
 ###Keep intermediate files
@@ -366,52 +352,10 @@ echo "
     - SygMa Phase 1 cycle number : $phase1
     - SygMa Phase 2 cycle number : $phase2
 
-    - MetaTrans activation : $trans_activate
-    - Meta-Predictor activation : $predictor_activate
-
-    - GloryX activation : $glory_activate
     - GloryX metabolism phase : $phase_gloryx
+
+    - Meta-Predictor activation : $predictor_activate
 "
-
-#########################
-### Conda Environment ###
-#########################
-
-eval "$(conda shell.bash hook)"
-
-if conda info --envs | grep -q rdkit; then 
-    :
-else
-    echo "Installation of "rdkit" environment :"
-    conda env create --name rdkit --file ${DirCondaEnv}rdkit_environment.yml
-fi
-
-if $predictor_activate; then
-    if conda info --envs | grep -q metapredictor; then 
-        :
-    else 
-        echo "Installation of "metapredictor" environment :"
-        conda env create --name metapredictor --file ${DirCondaEnv}metapred_environment.yml
-    fi
-fi
-
-if $trans_activate; then
-    if conda info --envs | grep -q metatrans; then 
-        :
-    else
-        echo "Installation of "metatrans" environment :"
-        conda env create --name metatrans --file ${DirCondaEnv}metatrans_environment.yml
-    fi
-fi
-
-if $glory_activate; then
-    if conda info --envs | grep -q selenium; then 
-        :
-    else
-        echo "Installation of "selenium" environment :"
-        conda env create --name selenium --file ${DirCondaEnv}selenium_environment.yml
-    fi
-fi
 
 ###############
 ###  Input  ###
@@ -428,112 +372,27 @@ do
     Smiles=$(echo $a | cut -d\, -f2)
     tab_smiles[${#tab_smiles[@]}]=${Smiles}
     tab_molecule[${#tab_molecule[@]}]=${Molecule}
-done < $input
+done < "$input"
 
 path_input="$(realpath ${input})"
-
-##################
-### META-TRANS ###
-##################
-
-if ${trans_activate}; then
-
-    conda activate metatrans
-
-    cd $DirMetatrans
-
-    #Variables from MetaTrans
-    outfile=processed_data.txt
-    results=Prediction_MetaTrans.csv
-    images=./Figures/*
-    STORE=predictions/  #directory for output process
-    mkdir $STORE
-
-    echo "
-     ==================================================
-    ||                                                ||
-    ||   Process of MetaTrans step 1 : Prepare data   ||
-    ||                                                ||
-     ==================================================
-    "
-
-    python prepare_input_file.py -input_file "${path_input}" -output_file ${outfile}
-
-    echo "
-     ==================================================
-    ||                                                ||
-    ||   Process of MetaTrans step 2 : Translate      ||
-    ||                                                ||
-     ==================================================
-    "
-
-    for model_id in {1,2,3,4,5,6}
-    do
-        MODEL_FILE='models/model_'$model_id'.pt'
-        OUT_NAME='model'$model_id'_beam'$BEAM'.txt'
-        OUT_FILE=$STORE$OUT_NAME
-        python translate.py -model $MODEL_FILE -src $outfile -output $OUT_FILE -n_best $BEAM -beam_size $BEAM -verbose -min_length $MIN -max_length $MAX > "${log}MetaTrans_log.txt" 2>&1
-    done
-
-    echo "
-     ========================================================
-    ||                                                      ||
-    ||   Process of MetaTrans step 3 : Get prediction       ||
-    ||                                                      ||
-     ========================================================
-    "
-
-    python process_predictions.py \
-    -input_file "${path_input}" \
-    -output_file ${results} \
-    -beam_size ${BEAM} \
-    -visualise_molecules True \
-    >> "${log}MetaTrans_log.txt" 2>&1
-
-    conda deactivate
-
-    #Moving results files and deleting intermediate files
-    rm -r ${outfile} ${STORE} ${images}
-    mv ${results} ${tmp}
-    cd ${tmp}
-
-    #Separation of results into separate files for each molecule
-    pat='^Molecule'
-
-    while read a
-    do
-        if [[ $a =~ $pat ]]; then
-            :
-
-        else
-            MoleculeID=$(echo $a | cut -d\, -f1)
-            #SmileParent=$(echo $a | cut -d\, -f2)
-            SmileMetabo=$(echo $a | cut -d\, -f3)
-            read -ra tab_metabo <<< "$SmileMetabo"
-            for i in ${tab_metabo[@]}; do
-                echo "${i}" >> "${MoleculeID}_Metatrans.csv"
-            done
-        fi
-    done < "Prediction_MetaTrans.csv"
-    rm Prediction_MetaTrans.csv
-fi
 
 ######################
 ### META-PREDICTOR ###
 ######################
 
-if ${predictor_activate}; then
+metapredictor_job() {
 
-    echo "
-     =================================
-    ||                               ||
-    ||   Process of MetaPredictor    ||
-    ||                               ||
-     =================================
-    "
+    ### Conda Environment ###
+    eval "$(conda shell.bash hook)"
+
+    if conda info --envs | grep -q metapredictor; then 
+        :
+    else 
+        echo "Installation of metapredictor environment :"
+        conda env create --name metapredictor --file ${DirCondaEnv}metapred_environment.yml
+    fi
 
     conda activate metapredictor
-
     cd ${DirMetapred}
 
     python prepare_input_file.py -input_file ${path_input} -output_file processed_data.txt
@@ -545,18 +404,16 @@ if ${predictor_activate}; then
     mv prediction/predict.csv ${tmp}Prediction_Metapred.csv
     rm -r prediction/* Figures/* processed_data.txt
 
-    #Separation of results into separate files for each molecule
+    # Separation of results into separate files for each molecule
     cd ${tmp}
-    pat='^Name'
+    pat="^Name"
 
-    while read a
-    do
+    while read a; do
         if [[ $a =~ $pat ]]; then
             :
-
         else
-            MoleculeID=$(echo $a | cut -d\, -f1)
-            SmileMetabo=$(echo $a | cut -d\, -f3)
+            MoleculeID=$(echo $a | cut -d, -f1)
+            SmileMetabo=$(echo $a | cut -d, -f3)
             read -ra tab_metabo <<< "$SmileMetabo"
             for i in ${tab_metabo[@]}; do
                 echo "${i}" >> "${MoleculeID}_Metapred.csv"
@@ -564,10 +421,33 @@ if ${predictor_activate}; then
         fi
     done < "Prediction_Metapred.csv"
     rm Prediction_Metapred.csv
+
+    cd $work_dir
+}
+
+if ${predictor_activate}; then
+
+    echo "
+
+    *** Process of $input ***
+
+    "
+    run_with_spinner "MetaPredictor ..." metapredictor_job
 fi
+
+#################
+### Main loop ###
+#################
 
 for indice in ${!tab_molecule[@]}
 do
+
+    echo "
+
+    *** Process of ${tab_molecule[${indice}]} ***
+
+    "
+
     results_file="${DirOutput}${tab_molecule[${indice}]}_CompileResults.tsv"
     results_figure="${DirOutput}${tab_molecule[${indice}]}_figures/"
     mkdir ${results_figure}
@@ -576,100 +456,95 @@ do
     ### BIOTRANSFORMERS 3 ###
     #########################
 
-    echo "
-     ===============================================================
-    ||                                                                                           
-    ||   Process of ${tab_molecule[${indice}]} by Biotransformer3
-    ||                                                                                            
-     ===============================================================
-    "
-    #Download version
-    #java -jar BioTransformer3.0_20230525.jar -b ${type} -k pred -cm 3 -ismi "${smile}" -ocsv "${DirOutput}${molecule}_Biotransformer3.csv"
+    biotransformer_job () {
 
-    #Singularity version
-    singularity exec https://depot.galaxyproject.org/singularity/biotransformer%3A3.0.20230403--hdfd78af_0 biotransformer \
-    -b "${type}" \
-    -k "pred" \
-    -cm 3 \
-    -s "${nstep}" \
-    -ismi "${tab_smiles[${indice}]}" \
-    -ocsv "${tmp}${tab_molecule[${indice}]}_Biotransformer3_v1.csv" 2>&1 | tee -a "${log}${tab_molecule[${indice}]}_Biotransformer3_log.txt"
+        singularity exec https://depot.galaxyproject.org/singularity/biotransformer:3.0.20230403--hdfd78af_0 biotransformer \
+        -b "${type}" \
+        -k "pred" \
+        -cm 3 \
+        -s "${nstep}" \
+        -ismi "${tab_smiles[${indice}]}" \
+        -ocsv "${tmp}${tab_molecule[${indice}]}_Biotransformer3_v1.csv" 2>&1 | tee -a "${log}${tab_molecule[${indice}]}_Biotransformer3_log.txt"
 
-    conda activate rdkit
+        #Changement csv format
+        singularity exec -B ${tmp}:/tmp library://abourdais/default/rdkit csvformat \
+        -D ";" "${tmp}${tab_molecule[${indice}]}_Biotransformer3_v1.csv" \
+        | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' \
+        > "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv"
+        
+        rm ${tmp}${tab_molecule[${indice}]}_Biotransformer3_v1.csv
+    }
 
-    #Changement csv format
-    csvformat -D ";" "${tmp}${tab_molecule[${indice}]}_Biotransformer3_v1.csv" | gawk -v RS='"' 'NR % 2 == 0 { gsub(/\n/, "") } { printf("%s%s", $0, RT) }' > "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv"
-    rm ${tmp}${tab_molecule[${indice}]}_Biotransformer3_v1.csv
-    conda deactivate
+    run_with_spinner "Biotransformer3 ..." biotransformer_job
 
     ##################
     ###    SygMa   ###
     ##################
 
-    echo "
-     ====================================================
-    ||                                         
-    ||   Process of ${tab_molecule[${indice}]} by Sygma
-    ||                                             
-     ====================================================
-    "
+    sygma_job () {
 
-    singularity run docker://3dechem/sygma ${tab_smiles[${indice}]} -1 $phase1 -2 $phase2 >> "${tmp}${tab_molecule[${indice}]}_Sygma.sdf"
+        singularity run docker://3dechem/sygma ${tab_smiles[${indice}]} \
+        -1 $phase1 \
+        -2 $phase2 \
+        >> "${tmp}${tab_molecule[${indice}]}_Sygma.sdf"
+    }
+
+    run_with_spinner "Sygma ..." sygma_job
 
     ###################
-    ###    GloryX   ###
+    ###    GloryX   ### !!! TO DO !!!
     ###################
 
-    if ${glory_activate}; then
+    gloryx_job () {
 
-    echo "
-     ====================================================
-    ||                                         
-    ||   Process of ${tab_molecule[${indice}]} by GloryX
-    ||                                             
-     ====================================================
-    "
+        singularity run library://abourdais/default/gloryx_api \
+        --phase $phase_gloryx \
+        --smile ${tab_smiles[${indice}]} \
+        --output ${tmp}${tab_molecule[${indice}]}_Gloryx.csv
+    }
 
-        conda activate selenium
+    run_with_spinner "GloryX ..." gloryx_job
 
-        path_selenium_env=$(conda info --envs | grep selenium | awk '{print $3}') #field nb3 if activate, nb2 if no activate
-        path_geckodriver="${path_selenium_env}/bin/geckodriver"
+    ##################
+    ### META-TRANS ###
+    ##################
 
-        python3 $Script_Gloryx --smiles ${tab_smiles[${indice}]} --phase ${phase_gloryx} --outdir ${tmp} --gecko ${path_geckodriver} \
-        > "${log}${tab_molecule[${indice}]}_GloryX_log.txt" 2>&1
-        mv "${tmp}gloryx-"* "${tmp}${tab_molecule[${indice}]}_Gloryx.csv"
+    metatrans_job () {
 
-        conda deactivate
-    fi
+        singularity run --containall -B ${tmp}:/tmp --writable-tmpfs library://abourdais/default/metatrans \
+        -n ${tab_molecule[${indice}]} \
+        -s ${tab_smiles[${indice}]} \
+        -r /tmp/${tab_molecule[${indice}]}_MetaTrans.csv \
+        -l /tmp/${tab_molecule[${indice}]}_MetaTrans_log.txt
+
+        mv ${tmp}${tab_molecule[${indice}]}_MetaTrans_log.txt ${log}
+        rm -rf ${tmp}Predictions
+    }
+
+    run_with_spinner "MetaTrans ..." metatrans_job
 
     ###################
     ### Compilation ###
     ###################
 
-    echo "     
-     =================================
-    ||                               ||
-    ||      Results Compilation      ||
-    ||                               ||
-     =================================
-    "
+    compilation_job () {
 
-    conda activate rdkit
+        singularity exec -B ${DirScripts}:/tmp library://abourdais/default/rdkit python ${Script_Metatox_Companion} \
+            --biotrans "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv" \
+            --sygma "${tmp}${tab_molecule[${indice}]}_Sygma.sdf" \
+            --metapred "${tmp}${tab_molecule[${indice}]}_Metapred.csv" \
+            --metatrans "${tmp}${tab_molecule[${indice}]}_MetaTrans.csv" \
+            --gloryx "${tmp}${tab_molecule[${indice}]}_Gloryx.csv" \
+            --output "${results_file}" \
+            --figure "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt" \
+            --dirfig "${results_figure}" \
+            > "${log}${tab_molecule[${indice}]}_Compagnion_log.txt" 2>&1
 
-    python3 $Script_Metatox_Companion \
-    --biotrans "${tmp}${tab_molecule[${indice}]}_Biotransformer3.csv" \
-    --sygma "${tmp}${tab_molecule[${indice}]}_Sygma.sdf" \
-    --metapred "${tmp}${tab_molecule[${indice}]}_Metapred.csv" \
-    --metatrans "${tmp}${tab_molecule[${indice}]}_Metatrans.csv" \
-    --gloryx "${tmp}${tab_molecule[${indice}]}_Gloryx.csv" \
-    --output "${results_file}" \
-    --figure "${tmp}${tab_molecule[${indice}]}_ListeSmile.txt" \
-    --dirfig "${results_figure}" \
-    > "${log}${tab_molecule[${indice}]}_Compagnion_log.txt" 2>&1
+        rm ${tmp}${tab_molecule[${indice}]}_ListeSmile.txt
+    }
 
-    conda deactivate
+    run_with_spinner "Compilation ..." compilation_job
 
-    rm ${tmp}${tab_molecule[${indice}]}_ListeSmile.txt
 done
 
 if ${keep_tmp}; then
