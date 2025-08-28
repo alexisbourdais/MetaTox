@@ -4,36 +4,43 @@
 
 ## Overview
 
-*In silico* prediction of a list of molecules whose SMILES code is provided by 5 software packages : **BioTransformer3**, **SyGMa**, **GLORYx**, **MetaTrans** and **Meta-Predictor**.
+*In silico* prediction of a list of molecules whose SMILES code is provided by 5 software packages : 
+- **BioTransformer3**
+- **SyGMa**
+- **GLORYx**
+- **MetaTrans**
+- **Meta-Predictor**
 
-Biotransformer and Sygma are used via **singularity**. 
-Meta-Trans & Meta-Predictor need to clone their github and to create a conda environement. 
-GLORYx is used online thanks selenium via a conda environment.
+**Biotransformer**, **Sygma**, **MetaTrans** and **GloryX (API)** are used via **singularity**. \
+**Meta-Predictor** needs to clone its github and to create a **conda** environement. \
 Singularity image downloads and conda environment creations are automated.
 
-As this project was designed for non-bioinformaticians, a graphical interface via zenity was included (optional).
+As this project was designed for non-bioinformaticians, a **graphical interface via zenity** was included (**optional**).
 
-This project has been tested and run on **linux** and **windows-WSL2** (except selenium, which has not yet been tested on wsl2 and zenity may not work on wsl2).
+This project has been tested and run on **linux** and **windows-WSL2**.
 
-Due to hardware limitations, MetaTrans, Meta-Predictor and selenium may not function correctly. Their use is therefore disabled by default.
-You can try running them and seeing the error logs to solve potential problems. Especially for Meta-predictor, which requires cuda drivers.
+Due to hardware limitations, **Meta-Predictor** (which requires **cuda drivers**) may not function correctly. Its use is therefore disabled by default.
+You can try running it and seeing the error logs to solve potential problems.
 
 ## Quick start
 
 ### Required packages:
 
-- **Singularity** (https://docs.sylabs.io/guides/3.0/user-guide/installation.html) :
-  `sudo apt-get install -y singularity-container`
-  
-- **Conda** (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) :
+- **Singularity** (https://sylabs.io/docs/)
+    
+- **Optional: Conda** (need for MetaPredictor only) (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) :
   `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh; chmod +x Miniconda3-latest-Linux-x86_64.sh; ./Miniconda3-latest-Linux-x86_64.sh`
-- May be necessary for metatrans conda env install : `conda config --set channel_priority flexible`
-- Some packages needed : `sudo apt install zenity gawk dos2unix` (zenity is optional, gawk and dos2unix are often already installed by default)
 
-### Clone MetaTox, MetaTrans, MetaPredictor directories and configure them: 
+- APT packages: `sudo apt install zenity gawk dos2unix` (zenity is optional, gawk and dos2unix are often already installed by default)
 
-- `git clone https://github.com/alexisbourdais/MetaTox; cd MetaTox/; git clone https://github.com/KavrakiLab/MetaTrans; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh Metatox.sh`
-- Download manually the models of Metatrans in https://rice.app.box.com/s/5jeb5pp0a3jjr3jvkakfmck4gi71opo0 and place them in **MetaTrans/models/** (unarchived)
+### Download MetaTox 
+- `git clone https://github.com/alexisbourdais/MetaTox; chmod +x MetaTox/Metatox.sh`
+
+### Add the sylabs library to use singularity images stored there 
+- `singularity remote add SylabsCloud cloud.sylabs.io`
+
+### Optional: Download MetaPredictor and configure it : 
+- `cd MetaTox; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh`
 
 ### Run
 - Input : Text file with the **molecule ID/name** in the 1st column and the **smile code** in the 2nd column, separated by a **comma**.
@@ -41,22 +48,17 @@ You can try running them and seeing the error logs to solve potential problems. 
 - `./MetaTox.sh --input input_file (--option)` to skip zenity
 
 ## Parameters
-
 - `./Metatox.sh -h` to see available parameters when zenity was skipped
-
+   
     REQUIRED parameter
 
-        -i|--input      Input file
+        -i|--input   
 
     OPTIONAL parameter
 
         -o|--outdir     Name of the output directory [Results_prediction]
 
         -p|--predictor  To activate meta-Predictor [No]
-
-        -t|--trans      To activate metaTrans [No]
-
-        -g|--glory      To activate selenium (GLORYx) [No]
 
         -b|--biotrans   Type of biotransformation to use with BioTransformer3:
                             [allHuman] : Predicts all possible metabolites from any applicable reaction(Oxidation, reduction, (de-)conjugation) at each step 
@@ -78,11 +80,10 @@ You can try running them and seeing the error logs to solve potential problems. 
         -2|--phase2     Number of reaction cycles Phase 2 by SygMa [defaut=1]
 
         -m|--metabo     Metabolism phase for GloryX : 
-                          [All] = Both phase (1 & 2)
-                            1   = Phase 1 only
-                            2   = Phase 2 only
+                          [phase_1_and_2]
+                          phase_1
+                          phase_2
 
-        -k|--tmp        To keep intermediate files [No] (debugging)
 
 ## Documentation
 
