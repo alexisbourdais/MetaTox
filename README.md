@@ -11,9 +11,9 @@
 - **MetaTrans**
 - **Meta-Predictor**
 
-**Biotransformer**, **Sygma**, **MetaTrans** and **GloryX (API)** are used via **singularity**. \
+**BioTransformer3**, **Sygma**, **MetaTrans** and **GloryX (API)** are used via **singularity**. \
 **Meta-Predictor** needs to clone its github and to create a **conda** environement. \
-Singularity image downloads and conda environment creations are automated.
+Singularity image downloads and conda environment creations are automated (First use may take a long time).
 
 As this project was designed for non-bioinformaticians, a **graphical interface via zenity** was included (**optional**).
 
@@ -28,10 +28,11 @@ You can try running it and seeing the error logs to solve potential problems.
 
 - **Singularity** (https://sylabs.io/docs/)
     
-- **Optional: Conda** (need for MetaPredictor only) (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) :
+- **Conda** (Optional: need for MetaPredictor only) (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html): \
   `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh; chmod +x Miniconda3-latest-Linux-x86_64.sh; ./Miniconda3-latest-Linux-x86_64.sh`
 
-- APT packages: `sudo apt install zenity gawk dos2unix` (zenity is optional, gawk and dos2unix are often already installed by default)
+- **APT packages** (zenity is optional, gawk and dos2unix are often already installed by default): \
+  `sudo apt install zenity gawk dos2unix`
 
 ### Download MetaTox 
 - `git clone https://github.com/alexisbourdais/MetaTox; chmod +x MetaTox/Metatox.sh`
@@ -39,13 +40,13 @@ You can try running it and seeing the error logs to solve potential problems.
 ### Add the sylabs library to use singularity images stored there 
 - `singularity remote add SylabsCloud cloud.sylabs.io`
 
-### Optional: Download MetaPredictor and configure it : 
+### Download MetaPredictor and configure it (Optional) : 
 - `cd MetaTox; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh`
 
 ### Run
 - Input : Text file with the **molecule ID/name** in the 1st column and the **smile code** in the 2nd column, separated by a **comma**.
 - `./Metatox.sh` to activate zenity
-- `./MetaTox.sh --input input_file (--option)` to skip zenity
+- `./MetaTox.sh --input ExempleInput.txt (--option)` to skip zenity
 
 ## Parameters
 - `./Metatox.sh -h` to see available parameters when zenity was skipped
@@ -71,7 +72,7 @@ You can try running it and seeing the error logs to solve potential problems.
 
         -n|--nstep      The number of steps for the prediction by BioTransformer3 [default=1]
 
-        -c|--cmode      CYP450 prediction Mode uses by BioTransformer: 
+        -c|--cmode      CYP450 prediction Mode uses by BioTransformer3: 
                             1  = CypReact+BioTransformer rules
                             2  = CyProduct only
                            [3] = CypReact+BioTransformer rules+CyProducts
