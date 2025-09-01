@@ -396,7 +396,15 @@ metapredictor_job() {
     cd ${DirMetapred}
 
     python prepare_input_file.py -input_file ${path_input} -output_file processed_data.txt
-    bash predict-top15.sh processed_data.txt ./prediction ${path_input} > "${log}Metapredictor_log.txt" 2>&1
+
+    # --- Lancement avec capture du code retour ---
+    bash predict-top15.sh processed_data.txt ./prediction "${path_input}" \
+        > "${log}Metapredictor_log.txt" 2>&1
+    status=$?
+    if [ $status -ne 0 ]; then
+        echo "predict-top15.sh failed with exit code $status" >> "${log}Metapredictor_log.txt"
+        return $status
+    fi
 
     conda deactivate
 
@@ -450,7 +458,7 @@ do
 
     results_file="${DirOutput}${tab_molecule[${indice}]}_CompileResults.tsv"
     results_figure="${DirOutput}${tab_molecule[${indice}]}_figures/"
-    mkdir ${results_figure}
+    mkdir -p ${results_figure}
 
     #########################
     ### BIOTRANSFORMERS 3 ###
