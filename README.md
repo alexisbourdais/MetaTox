@@ -38,7 +38,7 @@ You can try running it and seeing the error logs to solve potential problems.
 - `git clone https://github.com/alexisbourdais/MetaTox; chmod +x MetaTox/Metatox.sh`
 
 ### Add the sylabs library to use singularity images stored there 
-- `singularity remote add SylabsCloud cloud.sylabs.io`
+- `singularity remote add --no-login SylabsCloud cloud.sycloud.io`
 
 ### Download MetaPredictor and configure it (Optional) : 
 - `cd MetaTox; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh`
