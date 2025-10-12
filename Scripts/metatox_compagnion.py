@@ -6,13 +6,16 @@
 import argparse
 import csv
 import rdkit
-from rdkit import Chem
 import re
 import os
-from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 from molmass import Formula
-from rdkit.Chem import Draw
 import matplotlib.pyplot as plt
+from rdkit import Chem
+from rdkit.Chem.rdMolDescriptors import CalcMolFormula
+from rdkit.Chem import Draw
+from rdkit.Chem import Descriptors
+from rdkit.Chem import rdMolDescriptors
+from rdkit.Chem import inchi
 
 #######################
 ### Argument parser ###
@@ -40,6 +43,16 @@ def smart2smile(smart):
     mol = Chem.rdmolfiles.MolFromSmarts(smart)
     smi = Chem.rdmolfiles.MolToSmiles(mol)
     return(smi)
+
+def smiles2inchi(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    inchi_str = inchi.MolToInchi(mol)
+    return(inchi_str)
+
+def inchi2smiles(inchi_str):
+    mol = Chem.MolFromInchi(inchi_str)
+    smiles = Chem.MolToSmiles(mol, canonical=True, isomericSmiles=True)
+    return(smiles)
 
 def smiletoformula(smiles):
     mol = Chem.MolFromSmiles(smiles)
@@ -94,6 +107,9 @@ gloryx_dic={}
 gloryx_score_dic={}
 gloryx_pathway_dic={}
 
+figure_dic={}
+smiles_list_figure=[]
+
 #######################
 ### BioTransformer3 ###
 #######################
@@ -104,8 +120,10 @@ for line in biotrans:
         continue
     else:
         smiles = line[2]
-        smart=smiles2smart(smiles)
-        new_smiles=smart2smile(smart)
+        #smart=smiles2smart(smiles)
+        #new_smiles=smart2smile(smart)
+        inchi_str=smiles2inchi(smiles)
+        new_smiles=inchi2smiles(inchi_str)
         score = line[7]
         pathway = line[13]
         enzyme = line[15]
@@ -114,21 +132,27 @@ for line in biotrans:
         try:
             formulebrute=smiletoformula(new_smiles)
             mass=mass_calcul(formulebrute)
+            smiles_list_figure.append(new_smiles)
         except:
             formulebrute="NA"
             mass="NA"
 
         smiles_precursor = line[18]
-        smart_precursor=smiles2smart(smiles_precursor)
-        new_smiles_precursor=smart2smile(smart_precursor)
+        #smart_precursor=smiles2smart(smiles_precursor)
+        #new_smiles_precursor=smart2smile(smart_precursor)
+
+        inchi_str_precursor=smiles2inchi(smiles_precursor)
+        new_smiles_precursor=inchi2smiles(inchi_str_precursor)
 
         try:
             formulebrute_precursor=smiletoformula(new_smiles_precursor)
             #mass_precursor=mass_calcul(formulebrute)
-
         except:
-            formulebrute_precursor="NA"
-            #mass_precursor="NA"
+            try:
+                formulebrute_precursor=smiletoformula(smiles_precursor)
+            except:
+                formulebrute_precursor="NA"
+                #mass_precursor="NA"
 
         smiles_list.append(new_smiles)
         formulebrut_dic.setdefault(new_smiles, formulebrute)
@@ -184,8 +208,11 @@ for i in range(len(list_smiles_sygma)):
     if pathway == "parent":
         pass
     else:
-        smart=smiles2smart(smiles)
-        new_smiles=smart2smile(smart)
+        #smart=smiles2smart(smiles)
+        #new_smiles=smart2smile(smart)
+        inchi_str=smiles2inchi(smiles)
+        new_smiles=inchi2smiles(inchi_str)
+
         sygma_dic.setdefault(new_smiles, "+")
         sygma_pathway_dic.setdefault(new_smiles, pathway)
         sygma_score_dic.setdefault(new_smiles, score)
@@ -196,6 +223,7 @@ for i in range(len(list_smiles_sygma)):
             try:
                 formulebrute=smiletoformula(new_smiles)
                 mass=mass_calcul(formulebrute)
+                smiles_list_figure.append(new_smiles)
             except:
                 formulebrute="NA"
                 mass="NA"
@@ -212,8 +240,11 @@ if os.path.isfile(args['metatrans']):
 
     for line in metatrans_file:
         smiles = line
-        smart=smiles2smart(smiles)
-        new_smiles=smart2smile(smart)
+        #smart=smiles2smart(smiles)
+        #new_smiles=smart2smile(smart)
+        inchi_str=smiles2inchi(smiles)
+        new_smiles=inchi2smiles(inchi_str)
+
         metatrans_dic.setdefault(new_smiles, "+")
 
         if new_smiles in smiles_list:
@@ -222,6 +253,7 @@ if os.path.isfile(args['metatrans']):
             try:
                 formulebrute=smiletoformula(new_smiles)
                 mass=mass_calcul(formulebrute)
+                smiles_list_figure.append(new_smiles)
             except:
                 formulebrute="NA"
                 mass="NA"
@@ -238,8 +270,11 @@ if os.path.isfile(args['metapred']):
 
     for line in metapred_file:
         smiles = line
-        smart=smiles2smart(smiles)
-        new_smiles=smart2smile(smart)
+        #smart=smiles2smart(smiles)
+        #new_smiles=smart2smile(smart)
+        inchi_str=smiles2inchi(smiles)
+        new_smiles=inchi2smiles(inchi_str)
+
         metapred_dic.setdefault(new_smiles, "+")
 
         if new_smiles in smiles_list:
@@ -248,10 +283,11 @@ if os.path.isfile(args['metapred']):
             try:
                 formulebrute=smiletoformula(new_smiles)
                 mass=mass_calcul(formulebrute)
+                smiles_list_figure.append(new_smiles)
             except:
                 formulebrute="NA"
                 mass="NA"
-        
+
             smiles_list.append(new_smiles)
             formulebrut_dic.setdefault(new_smiles, formulebrute)
             mass_dic.setdefault(new_smiles, mass)
@@ -266,8 +302,11 @@ if os.path.isfile(args['gloryx']):
             continue
         else:
             smiles = line[0]
-            smart=smiles2smart(smiles)
-            new_smiles=smart2smile(smart)
+            #smart=smiles2smart(smiles)
+            #new_smiles=smart2smile(smart)
+            inchi_str=smiles2inchi(smiles)
+            new_smiles=inchi2smiles(inchi_str)
+
             score = line[1]
             pathway = line[2]
             gloryx_dic.setdefault(new_smiles, "+")
@@ -280,10 +319,11 @@ if os.path.isfile(args['gloryx']):
                 try:
                     formulebrute=smiletoformula(new_smiles)
                     mass=mass_calcul(formulebrute)
+                    smiles_list_figure.append(new_smiles)
                 except:
                     formulebrute="NA"
                     mass="NA"
-            
+
                 smiles_list.append(new_smiles)
                 formulebrut_dic.setdefault(new_smiles, formulebrute)
                 mass_dic.setdefault(new_smiles, mass)
@@ -291,7 +331,7 @@ if os.path.isfile(args['gloryx']):
 ###################
 ### Compilation ###
 ###################
-results_file=open(args['output'], "a")
+results_file=open(args['output'], "w")
 figures_file=args['figure']
 dir_figures=args['dirfig']
 
@@ -326,7 +366,10 @@ for smiles in smiles_list:
     else:
         nbmolecule+=1
         figure=f"Figure_{nbmolecule}"
-        print(f"Molecule_{nbmolecule},{smiles}", file=open(figures_file, 'a'))
+        if smiles in smiles_list_figure:
+            print(f"Molecule_{nbmolecule},{smiles}", file=open(figures_file, 'a'))
+        else:
+            print(f"Molecule_{nbmolecule},{figure_dic.get(smiles).strip()}", file=open(figures_file, 'a'))
     
     print(f"{formulebrute}\t{mass}\t{smiles}\t{sygma}\t{biotrans}\t{metatrans}\t{gloryx}\t{metapred}\t{sygma_pathway}\t{biotrans_pathway}\t{gloryx_pathway}\t{sygma_score}\t{gloryx_score}\t{biotrans_score}\t{biotrans_prec_for}\t{biotrans_prec_smiles}\t{biotrans_enzyme}\t{biotrans_system}\t{figure}".replace("None", ""), file=results_file)
 
