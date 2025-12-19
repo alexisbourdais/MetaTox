@@ -3,8 +3,7 @@
 ![screenshot](Images/MetaTox.png)
 
 ## Overview
-
-*In silico* prediction of a list of molecules whose SMILES code is provided by 5 software packages : 
+*In silico* prediction of molecule metabolites based on their SMILES using 5 software programs:
 - **BioTransformer3**
 - **SyGMa**
 - **GLORYx**
@@ -12,7 +11,7 @@
 - **Meta-Predictor**
 
 **BioTransformer3**, **Sygma**, **MetaTrans** and **GloryX (API)** are used via **singularity**. \
-**Meta-Predictor** needs to clone its github and to create a **conda** environement. \
+**Meta-Predictor** needs to clone its github and to create a **conda** environment. \
 Singularity image downloads and conda environment creations are automated (First use may take a long time).
 
 As this project was designed for non-bioinformaticians, a **graphical interface via zenity** was included (**optional**).
@@ -34,13 +33,13 @@ You can try running it and seeing the error logs to solve potential problems.
 - **APT packages** (zenity is optional, gawk and dos2unix are often already installed by default): \
   `sudo apt install zenity gawk dos2unix`
 
-### Download MetaTox 
+### Download MetaTox
 - `git clone https://github.com/alexisbourdais/MetaTox; chmod +x MetaTox/Metatox.sh`
 
-### Add the sylabs library to use singularity images stored there 
+### Add the sylabs library to use singularity images stored there
 - `singularity remote add --no-login SylabsCloud cloud.sycloud.io`
 
-### Download MetaPredictor and configure it (Optional) : 
+### Download MetaPredictor and configure it
 - `cd MetaTox; git clone https://github.com/zhukeyun/Meta-Predictor; mkdir Meta-Predictor/prediction; mv Meta-Predictor/model/SoM\ identifier/ Meta-Predictor/model/SoM_identifier; mv Meta-Predictor/model/metabolite\ predictor/ Meta-Predictor/model/metabolite_predictor; chmod +x Meta-Predictor/predict-top15.sh`
 
 ### Run
